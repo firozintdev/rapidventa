@@ -1,0 +1,59 @@
+{% load static %}
+<footer class="rv-footer mt-auto">
+  <div class="container">
+    <div class="row gy-4 py-5">
+
+      <div class="col-lg-4">
+        <a class="rv-brand rv-brand--footer" href="{% url 'listings:list' %}">
+          <img src="{% static 'images/logo-footer-light.png' %}" alt="RapidVenta" class="rv-brand__logo rv-brand__logo--footer" />
+        </a>
+        <p class="rv-footer__tagline mt-2">
+          The fast, transparent online auction house. Bid smart, win big.
+        </p>
+      </div>
+
+      <div class="col-6 col-lg-2">
+        <h6 class="rv-footer__heading">Auctions</h6>
+        <ul class="list-unstyled rv-footer__links">
+          <li><a href="{% url 'listings:list' %}">Browse All</a></li>
+          {% if user.is_authenticated and user.is_seller %}
+          <li><a href="{% url 'listings:create' %}">Create Listing</a></li>
+          <li><a href="{% url 'listings:upload_csv' %}">Bulk Upload</a></li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <div class="col-6 col-lg-2">
+        <h6 class="rv-footer__heading">Account</h6>
+        <ul class="list-unstyled rv-footer__links">
+          {% if user.is_authenticated %}
+          <li><a href="{% url 'accounts:dashboard' %}">Dashboard</a></li>
+          <li><a href="{% url 'orders:list' %}">My Orders</a></li>
+          <li><a href="{% url 'accounts:auction_history' %}">Bid History</a></li>
+          {% else %}
+          <li><a href="{% url 'accounts:login' %}">Log In</a></li>
+          <li><a href="{% url 'accounts:register' %}">Register</a></li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <div class="col-lg-4">
+        <h6 class="rv-footer__heading">How It Works</h6>
+        <div class="rv-footer__steps">
+          <div class="rv-footer__step"><span>1</span> Register &amp; get validated</div>
+          <div class="rv-footer__step"><span>2</span> Browse live auctions</div>
+          <div class="rv-footer__step"><span>3</span> Place your highest bid</div>
+          <div class="rv-footer__step"><span>4</span> Win &amp; complete the order</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="rv-footer__bottom">
+      <span>&copy; {% now "Y" %} RapidVenta. All rights reserved.</span>
+      <span class="rv-footer__legal">
+        Built with <i class="bi bi-heart-fill text-danger"></i> using Django 5.2
+      </span>
+    </div>
+  </div>
+</footer>

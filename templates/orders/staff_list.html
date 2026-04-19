@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load static humanize %}
+
+{% block title %}All Orders – Staff{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+  <div class="rv-page-header">
+    <div>
+      <h1 class="rv-page-header__title">All Orders</h1>
+      <p class="rv-page-header__sub">Staff management view</p>
+    </div>
+  </div>
+
+  <!-- Filter by status -->
+  <form method="get" class="rv-filter-form mb-4">
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="{% url 'orders:staff_list' %}"
+         class="btn btn-sm {% if not current_status %}rv-btn-primary{% else %}rv-btn-outline{% endif %}">
+        All
+      </a>
+      {% for value, label in status_choices %}
+      <a href="?status={{ value }}"
+         class="btn btn-sm {% if current_status == value %}rv-btn-primary{% else %}rv-btn-outline{% endif %}">
+        {{ label }}
+      </a>
+      {% endfor %}
+    </div>
+  </form>
+
+  <div class="rv-table-card">
+    <table class="table rv-table">
+      <thead>
+        <tr>
+          <th>Reference</th>
+          <th>Buyer</th>
+          <th>Item</th>
+          <th>Amount</th>
+          <th>Status</th>
+          <th>Tracking</th>
+          <th>Date</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td><code class="rv-ref-code">{{ order.short_reference }}</code></td>
+          <td>{{ order.buyer.full_name }}</td>
+          <td>{{ order.listing.title|truncatechars:30 }}</td>
+          <td>${{ order.winning_bid_amount|floatformat:2|intcomma }}</td>
+          <td>
+            <span class="rv-status-pill rv-status--{{ order.status|lower }}">
+              {{ order.get_status_display }}
+            </span>
+          </td>
+          <td>{% if order.tracking_number %}<code>{{ order.tracking_number }}</code>{% else %}—{% endif %}</td>
+          <td class="text-muted">{{ order.created_at|date:"M j, Y" }}</td>
+          <td>
+            <a href="{{ order.get_absolute_url }}" class="btn btn-sm rv-btn-outline">Manage</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="text-center text-muted py-4">No orders found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+{% endblock %}

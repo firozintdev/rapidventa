@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load static humanize %}
+
+{% block title %}My Listings{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+  <div class="rv-page-header">
+    <div>
+      <h1 class="rv-page-header__title">My Listings</h1>
+      <p class="rv-page-header__sub">Manage all your auction items</p>
+    </div>
+    <div class="rv-page-header__actions">
+      <a href="{% url 'listings:create' %}" class="btn rv-btn-primary">
+        <i class="bi bi-plus-circle me-2"></i>New Listing
+      </a>
+      <a href="{% url 'listings:upload_csv' %}" class="btn rv-btn-outline">
+        <i class="bi bi-upload me-2"></i>Bulk Upload
+      </a>
+    </div>
+  </div>
+
+  {% if listings %}
+  <div class="rv-table-card">
+    <table class="table rv-table rv-table--striped">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Category</th>
+          <th>Status</th>
+          <th>Min Price</th>
+          <th>Bids</th>
+          <th>End Time</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for listing in listings %}
+        <tr>
+          <td>
+            <a href="{{ listing.get_absolute_url }}" class="rv-table__link">
+              {{ listing.title|truncatechars:40 }}
+            </a>
+          </td>
+          <td><span class="rv-chip">{{ listing.category.name }}</span></td>
+          <td>
+            <span class="rv-status-pill rv-status--{{ listing.status|lower }}">
+              {{ listing.get_status_display }}
+            </span>
+          </td>
+          <td>${{ listing.min_public_price|floatformat:2|intcomma }}</td>
+          <td>{{ listing.bids.count }}</td>
+          <td class="text-muted">{{ listing.end_time|date:"M j, Y" }}</td>
+          <td>
+            <a href="{{ listing.get_absolute_url }}" class="btn btn-sm rv-btn-outline">
+              <i class="bi bi-eye"></i>
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="rv-empty-state">
+    <i class="bi bi-collection rv-empty-state__icon"></i>
+    <h3>No Listings Yet</h3>
+    <p>Create your first listing to start selling.</p>
+    <a href="{% url 'listings:create' %}" class="btn rv-btn-primary">
+      <i class="bi bi-plus-circle me-2"></i>Create Listing
+    </a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

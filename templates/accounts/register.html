@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load static widget_tweaks %}
+
+{% block title %}Create Account{% endblock %}
+
+{% block content %}
+<div class="rv-auth-page rv-auth-page--wide">
+  <div class="rv-auth-card rv-auth-card--wide">
+
+    <div class="rv-auth-card__brand">
+      <img src="{% static 'images/logo-auth.png' %}" alt="RapidVenta" class="rv-brand__logo rv-brand__logo--auth" />
+    </div>
+
+    <h1 class="rv-auth-card__title">Create your account</h1>
+    <p class="rv-auth-card__subtitle">
+      You'll need admin validation before placing bids.
+    </p>
+
+    <form method="post" class="rv-form" novalidate>
+      {% csrf_token %}
+
+      <div class="row g-3">
+
+        <!-- Full Name -->
+        <div class="col-12">
+          <div class="rv-form__group">
+            <label class="rv-label" for="{{ form.full_name.id_for_label }}">Full Name *</label>
+            {% render_field form.full_name class="form-control rv-input" %}
+            {% if form.full_name.errors %}<div class="rv-field-error">{{ form.full_name.errors|join:", " }}</div>{% endif %}
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="col-md-6">
+          <div class="rv-form__group">
+            <label class="rv-label" for="{{ form.email.id_for_label }}">Email Address *</label>
+            {% render_field form.email class="form-control rv-input" %}
+            {% if form.email.errors %}<div class="rv-field-error">{{ form.email.errors|join:", " }}</div>{% endif %}
+          </div>
+        </div>
+
+        <!-- Phone -->
+        <div class="col-md-6">
+          <div class="rv-form__group">
+            <label class="rv-label" for="{{ form.phone.id_for_label }}">Phone</label>
+            {% render_field form.phone class="form-control rv-input" %}
+            {% if form.phone.errors %}<div class="rv-field-error">{{ form.phone.errors|join:", " }}</div>{% endif %}
+          </div>
+        </div>
+
+        <!-- National ID -->
+        <div class="col-md-6">
+          <div class="rv-form__group">
+            <label class="rv-label" for="{{ form.national_id.id_for_label }}">National ID / Document</label>
+            {% render_field form.national_id class="form-control rv-input" %}
+            {% if form.national_id.errors %}<div class="rv-field-error">{{ form.national_id.errors|join:", " }}</div>{% endif %}
+          </div>
+        </div>
+
+        <!-- Role -->
+        <div class="col-md-6">
+          <div class="rv-form__group">
+            <label class="rv-label" for="{{ form.role.id_for_label }}">Account Role *</label>
+            {% render_field form.role class="form-select rv-select" %}
+            {% if form.role.errors %}<div class="rv-field-error">{{ form.role.errors|join:", " }}</div>{% endif %}
+          </div>
+        </div>
+
+        <!-- Address -->
+        <div class="col-12">
+          <div class="rv-form__group">
+            <label class="rv-label" for="{{ form.address.id_for_label }}">Address</label>
+            {% render_field form.address class="form-control rv-input" rows="2" %}
+            {% if form.address.errors %}<div class="rv-field-error">{{ form.address.errors|join:", " }}</div>{% endif %}
+          </div>
+        </div>
+
+        <!-- Passwords -->
+        <div class="col-md-6">
+          <div class="rv-form__group">
+            <label class="rv-label" for="{{ form.password.id_for_label }}">Password *</label>
+            {% render_field form.password class="form-control rv-input" autocomplete="new-password" %}
+            {% if form.password.errors %}<div class="rv-field-error">{{ form.password.errors|join:", " }}</div>{% endif %}
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="rv-form__group">
+            <label class="rv-label" for="{{ form.password_confirm.id_for_label }}">Confirm Password *</label>
+            {% render_field form.password_confirm class="form-control rv-input" autocomplete="new-password" %}
+            {% if form.password_confirm.errors %}<div class="rv-field-error">{{ form.password_confirm.errors|join:", " }}</div>{% endif %}
+          </div>
+        </div>
+
+      </div>
+
+      {% if form.non_field_errors %}
+      <div class="rv-field-error rv-field-error--block mt-3">
+        {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+      </div>
+      {% endif %}
+
+      <button type="submit" class="btn rv-btn-primary w-100 rv-btn-lg mt-3">
+        <i class="bi bi-person-check me-2"></i>Create Account
+      </button>
+
+    </form>
+
+    <div class="rv-auth-card__footer">
+      Already have an account?
+      <a href="{% url 'accounts:login' %}">Log in</a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

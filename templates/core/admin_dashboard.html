@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+{% load static humanize %}
+
+{% block title %}Platform Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+  <div class="rv-page-header">
+    <div>
+      <h1 class="rv-page-header__title">Platform Dashboard</h1>
+      <p class="rv-page-header__sub">Real-time metrics across the entire RapidVenta platform</p>
+    </div>
+    <div class="rv-page-header__actions">
+      <a href="{% url 'admin:index' %}" class="btn rv-btn-outline">
+        <i class="bi bi-shield-lock me-2"></i>Django Admin
+      </a>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!--  ROW 1 – Users                                                        -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <h6 class="text-uppercase text-muted fw-semibold mb-3 mt-2 small letter-spacing-1">
+    <i class="bi bi-people me-2"></i>Users
+  </h6>
+  <div class="row g-3 mb-4">
+
+    <div class="col-sm-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="rounded-3 p-3 bg-primary bg-opacity-10 text-primary fs-3">
+            <i class="bi bi-people-fill"></i>
+          </div>
+          <div>
+            <div class="text-muted small mb-1">Total Users</div>
+            <div class="fw-bold fs-4">{{ total_users|intcomma }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="rounded-3 p-3 bg-success bg-opacity-10 text-success fs-3">
+            <i class="bi bi-person-check-fill"></i>
+          </div>
+          <div>
+            <div class="text-muted small mb-1">Validated</div>
+            <div class="fw-bold fs-4">{{ validated_users|intcomma }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="rounded-3 p-3 bg-warning bg-opacity-10 text-warning fs-3">
+            <i class="bi bi-person-exclamation"></i>
+          </div>
+          <div>
+            <div class="text-muted small mb-1">Pending Validation</div>
+            <div class="fw-bold fs-4">{{ pending_users|intcomma }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!--  ROW 2 – Bids & Revenue                                               -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <h6 class="text-uppercase text-muted fw-semibold mb-3 small">
+    <i class="bi bi-hammer me-2"></i>Bids &amp; Revenue
+  </h6>
+  <div class="row g-3 mb-4">
+
+    <div class="col-sm-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="rounded-3 p-3 bg-info bg-opacity-10 text-info fs-3">
+            <i class="bi bi-calendar-day"></i>
+          </div>
+          <div>
+            <div class="text-muted small mb-1">Bids Today</div>
+            <div class="fw-bold fs-4">{{ bids_today|intcomma }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="rounded-3 p-3 bg-info bg-opacity-10 text-info fs-3">
+            <i class="bi bi-calendar-week"></i>
+          </div>
+          <div>
+            <div class="text-muted small mb-1">Bids This Week</div>
+            <div class="fw-bold fs-4">{{ bids_this_week|intcomma }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="rounded-3 p-3 bg-secondary bg-opacity-10 text-secondary fs-3">
+            <i class="bi bi-hammer"></i>
+          </div>
+          <div>
+            <div class="text-muted small mb-1">Bids All Time</div>
+            <div class="fw-bold fs-4">{{ bids_all_time|intcomma }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="rounded-3 p-3 bg-success bg-opacity-10 text-success fs-3">
+            <i class="bi bi-cash-coin"></i>
+          </div>
+          <div>
+            <div class="text-muted small mb-1">Total Revenue</div>
+            <div class="fw-bold fs-4">${{ total_revenue|floatformat:2|intcomma }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!--  ROW 3 – Status Breakdowns                                            -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <div class="row g-4 mb-4">
+
+    <!-- Listings by Status -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-transparent border-bottom d-flex justify-content-between align-items-center">
+          <span class="fw-semibold"><i class="bi bi-collection me-2"></i>Listings by Status</span>
+          <span class="badge bg-secondary rounded-pill">{{ total_listings|intcomma }} total</span>
+        </div>
+        {% if listing_status_counts %}
+        <ul class="list-group list-group-flush">
+          {% for row in listing_status_counts %}
+          <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
+            <span class="rv-status-pill rv-status--{{ row.status|lower }}">{{ row.label }}</span>
+            <span class="badge bg-secondary rounded-pill">{{ row.count }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        <div class="card-footer bg-transparent border-top small text-muted d-flex gap-4 px-4 py-2">
+          <span><i class="bi bi-slash-circle me-1 text-danger"></i>Voided: <strong>{{ voided_count }}</strong></span>
+          <span><i class="bi bi-arrow-repeat me-1 text-primary"></i>Republished: <strong>{{ republished_count }}</strong></span>
+        </div>
+        {% else %}
+        <div class="card-body">
+          <div class="rv-empty-state py-3">
+            <i class="bi bi-collection rv-empty-state__icon"></i>
+            <p class="mb-0">No listings yet.</p>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Orders by Status -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-transparent border-bottom d-flex justify-content-between align-items-center">
+          <span class="fw-semibold"><i class="bi bi-bag-check me-2"></i>Orders by Status</span>
+          <span class="badge bg-secondary rounded-pill">{{ total_orders|intcomma }} total</span>
+        </div>
+        {% if order_status_counts %}
+        <ul class="list-group list-group-flush">
+          {% for row in order_status_counts %}
+          <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
+            <span class="rv-status-pill rv-status--{{ row.status|lower }}">{{ row.label }}</span>
+            <span class="badge bg-secondary rounded-pill">{{ row.count }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <div class="card-body">
+          <div class="rv-empty-state py-3">
+            <i class="bi bi-bag rv-empty-state__icon"></i>
+            <p class="mb-0">No orders yet.</p>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!--  Recent Orders                                                         -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <h6 class="text-uppercase text-muted fw-semibold mb-3 small">
+    <i class="bi bi-clock-history me-2"></i>Recent Orders
+  </h6>
+
+  {% if recent_orders %}
+  <div class="rv-table-card">
+    <table class="table rv-table rv-table--striped mb-0">
+      <thead>
+        <tr>
+          <th>Reference</th>
+          <th>Listing</th>
+          <th>Buyer</th>
+          <th>Seller</th>
+          <th>Amount</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in recent_orders %}
+        <tr>
+          <td><code class="rv-ref-code">{{ order.short_reference }}</code></td>
+          <td>
+            <a href="{{ order.listing.get_absolute_url }}" class="rv-table__link">
+              {{ order.listing.title|truncatechars:28 }}
+            </a>
+          </td>
+          <td class="text-muted">{{ order.buyer.full_name|truncatechars:20 }}</td>
+          <td class="text-muted">{{ order.listing.seller.full_name|truncatechars:20 }}</td>
+          <td class="fw-semibold">${{ order.winning_bid_amount|floatformat:2|intcomma }}</td>
+          <td>
+            <span class="rv-status-pill rv-status--{{ order.status|lower }}">
+              {{ order.get_status_display }}
+            </span>
+          </td>
+          <td class="text-muted small">{{ order.created_at|date:"M j, Y" }}</td>
+          <td>
+            <a href="{{ order.get_absolute_url }}" class="btn btn-sm rv-btn-outline">
+              <i class="bi bi-eye"></i>
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="rv-empty-state">
+    <i class="bi bi-bag rv-empty-state__icon"></i>
+    <h3>No Orders Yet</h3>
+    <p>Orders will appear here once auctions close with winning bids.</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

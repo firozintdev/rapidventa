@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Bulk Upload Listings{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-7">
+
+      <div class="rv-form-card">
+        <div class="rv-form-card__header">
+          <h1 class="rv-form-card__title">
+            <i class="bi bi-upload me-2"></i>Bulk Upload Listings
+          </h1>
+          <p class="rv-form-card__subtitle">Upload a CSV file to create multiple listings at once.</p>
+        </div>
+
+        <!-- CSV Format Guide -->
+        <div class="rv-info-box mb-4">
+          <h6 class="rv-info-box__title"><i class="bi bi-file-earmark-spreadsheet me-2"></i>Required CSV Format</h6>
+          <div class="rv-csv-schema">
+            <code>title, description, category_slug, min_price, max_price, reserve_price, start_time, end_time</code>
+          </div>
+          <ul class="rv-info-box__list mt-2">
+            <li><strong>category_slug</strong> – must match an existing category slug</li>
+            <li><strong>start_time / end_time</strong> – format: <code>YYYY-MM-DD HH:MM:SS</code></li>
+            <li>All price fields are in USD (decimal, e.g. <code>150.00</code>)</li>
+          </ul>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="rv-form" novalidate>
+          {% csrf_token %}
+
+          <div class="rv-form__group">
+            <label class="rv-label" for="{{ form.csv_file.id_for_label }}">Select CSV File</label>
+            <input type="file" name="csv_file" id="{{ form.csv_file.id_for_label }}"
+                   class="form-control rv-input" accept=".csv" required>
+            {% if form.csv_file.errors %}
+              <div class="rv-field-error">{{ form.csv_file.errors|join:", " }}</div>
+            {% endif %}
+            {% if form.csv_file.help_text %}
+              <div class="form-text text-muted">{{ form.csv_file.help_text }}</div>
+            {% endif %}
+          </div>
+
+          <div class="rv-form__actions">
+            <button type="submit" class="btn rv-btn-primary px-5">
+              <i class="bi bi-cloud-upload me-2"></i>Upload &amp; Process
+            </button>
+            <a href="{% url 'listings:my_listings' %}" class="btn rv-btn-outline">Back</a>
+          </div>
+        </form>
+
+        <!-- Upload Results -->
+        {% if result %}
+        <div class="rv-upload-results mt-4">
+          <div class="rv-upload-results__summary">
+            <div class="rv-upload-results__stat rv-upload-results__stat--success">
+              <i class="bi bi-check-circle-fill"></i>
+              <span>{{ result.created }} Created</span>
+            </div>
+            <div class="rv-upload-results__stat rv-upload-results__stat--error">
+              <i class="bi bi-x-circle-fill"></i>
+              <span>{{ result.errors|length }} Failed</span>
+            </div>
+          </div>
+
+          {% if result.errors %}
+          <div class="rv-upload-results__errors">
+            <h6>Errors</h6>
+            <table class="table rv-table table-sm">
+              <thead><tr><th>Row</th><th>Error</th></tr></thead>
+              <tbody>
+                {% for err in result.errors %}
+                <tr>
+                  <td>{{ err.row }}</td>
+                  <td class="text-danger">{{ err.error }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% load static humanize %}
+
+{% block title %}Dispute #{{ dispute.pk }} – {{ dispute.order.short_reference }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-7">
+
+      <!-- Breadcrumb -->
+      <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb rv-breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'orders:list' %}">My Orders</a></li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'orders:detail' dispute.order.reference %}">
+              Order {{ dispute.order.short_reference }}
+            </a>
+          </li>
+          <li class="breadcrumb-item active">Dispute #{{ dispute.pk }}</li>
+        </ol>
+      </nav>
+
+      <!-- Status banner -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body px-4 py-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+              <h1 class="fs-4 fw-bold mb-1">Dispute #{{ dispute.pk }}</h1>
+              <span class="text-muted small">
+                Raised {{ dispute.created_at|date:"M j, Y H:i" }}
+                &nbsp;·&nbsp;
+                Last updated {{ dispute.updated_at|timesince }} ago
+              </span>
+            </div>
+            <span class="rv-status-pill rv-status--{{ dispute.status|lower }} rv-status-pill--lg">
+              {{ dispute.get_status_display }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order summary -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-bottom fw-semibold">
+          <i class="bi bi-bag-check me-2"></i>Related Order
+        </div>
+        <div class="card-body px-4 py-3">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+              <div class="text-muted small mb-1">Reference</div>
+              <a href="{% url 'orders:detail' dispute.order.reference %}" class="rv-table__link">
+                <code class="rv-ref-code">{{ dispute.order.reference }}</code>
+              </a>
+            </div>
+            <div>
+              <div class="text-muted small mb-1">Item</div>
+              <strong>{{ dispute.order.listing.title|truncatechars:40 }}</strong>
+            </div>
+            <div>
+              <div class="text-muted small mb-1">Amount</div>
+              <strong>${{ dispute.order.winning_bid_amount|floatformat:2|intcomma }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reason -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-bottom fw-semibold">
+          <i class="bi bi-chat-left-text me-2"></i>Reason Provided
+        </div>
+        <div class="card-body px-4 py-4">
+          <p class="mb-0" style="white-space: pre-wrap;">{{ dispute.reason }}</p>
+        </div>
+      </div>
+
+      <!-- Resolution (shown when resolved or closed) -->
+      {% if dispute.status == "RESOLVED" or dispute.status == "CLOSED" %}
+      <div class="card border-0 shadow-sm mb-4
+                  {% if dispute.status == 'RESOLVED' %}border-start border-success border-3{% endif %}">
+        <div class="card-header bg-transparent border-bottom fw-semibold text-success">
+          <i class="bi bi-check-circle me-2"></i>Resolution
+        </div>
+        <div class="card-body px-4 py-4">
+          {% if dispute.resolution_notes %}
+          <p class="mb-0" style="white-space: pre-wrap;">{{ dispute.resolution_notes }}</p>
+          {% else %}
+          <p class="text-muted mb-0">No resolution notes provided.</p>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Still open notice -->
+      {% if dispute.is_open %}
+      <div class="alert alert-info d-flex gap-3" role="alert">
+        <i class="bi bi-clock-history fs-4 flex-shrink-0 mt-1"></i>
+        <div>
+          <strong>Under review</strong>
+          <p class="mb-0 mt-1 small">
+            Our team will review your dispute and respond within 5 business days.
+            You will see updates reflected on this page.
+          </p>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="mt-4">
+        <a href="{% url 'orders:detail' dispute.order.reference %}" class="btn rv-btn-outline">
+          <i class="bi bi-arrow-left me-1"></i>Back to Order
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% load static humanize %}
+
+{% block title %}{{ seller.full_name }} – Seller Profile{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+  <!-- ── Profile Header ──────────────────────────────────────────────────── -->
+  <div class="card border-0 shadow-sm mb-5">
+    <div class="card-body px-4 py-4">
+      <div class="d-flex align-items-center gap-4 flex-wrap">
+
+        <!-- Avatar -->
+        <div class="rv-avatar rv-avatar--lg flex-shrink-0"
+             style="width:72px;height:72px;font-size:2rem;border-radius:50%;
+                    background:var(--rv-primary,#6c63ff);color:#fff;
+                    display:flex;align-items:center;justify-content:center;font-weight:700;">
+          {{ seller.full_name|first|upper }}
+        </div>
+
+        <!-- Identity -->
+        <div class="flex-grow-1">
+          <h1 class="fw-bold mb-1 fs-3">{{ seller.full_name }}</h1>
+          <div class="d-flex flex-wrap gap-3 text-muted small">
+            <span>
+              <i class="bi bi-person-badge me-1"></i>{{ seller.get_role_display }}
+            </span>
+            <span>
+              <i class="bi bi-calendar3 me-1"></i>Member since {{ seller.date_joined|date:"F Y" }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Summary stats -->
+        <div class="d-flex gap-4 flex-wrap text-center">
+          <div>
+            <div class="fw-bold fs-5">{{ total_listings|intcomma }}</div>
+            <div class="text-muted small">Total Listings</div>
+          </div>
+          <div>
+            <div class="fw-bold fs-5">{{ closed_count|intcomma }}</div>
+            <div class="text-muted small">Closed Auctions</div>
+          </div>
+          <div>
+            <div class="fw-bold fs-5">
+              {% if avg_rating %}
+                {{ avg_rating }}
+                <i class="bi bi-star-fill text-warning" style="font-size:.9rem;"></i>
+              {% else %}
+                <span class="text-muted">—</span>
+              {% endif %}
+            </div>
+            <div class="text-muted small">Avg Rating</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Active Listings ─────────────────────────────────────────────────── -->
+  <h2 class="rv-section-title mb-4">
+    <i class="bi bi-lightning-charge me-2"></i>Active Listings
+    {% if active_listings %}
+    <span class="rv-section-title__count">{{ active_listings|length }}</span>
+    {% endif %}
+  </h2>
+
+  {% if active_listings %}
+  <div class="row g-4">
+    {% for listing in active_listings %}
+    <div class="col-12 col-sm-6 col-lg-3">
+      <article class="rv-card">
+
+        <!-- Image -->
+        <a href="{{ listing.get_absolute_url }}" class="rv-card__img-link">
+          {% with primary=listing.primary_image %}
+          {% if primary %}
+            <img src="{{ primary.image.url }}" alt="{{ listing.title }}" class="rv-card__img" loading="lazy">
+          {% else %}
+            <div class="rv-card__img-placeholder">
+              <i class="bi bi-image"></i>
+            </div>
+          {% endif %}
+          {% endwith %}
+          <span class="rv-card__category-badge">{{ listing.category.name }}</span>
+        </a>
+
+        <!-- Body -->
+        <div class="rv-card__body">
+          <h2 class="rv-card__title">
+            <a href="{{ listing.get_absolute_url }}">{{ listing.title }}</a>
+          </h2>
+
+          <!-- Price row -->
+          <div class="rv-card__price-row">
+            <div>
+              <span class="rv-card__price-label">Current Bid</span>
+              <span class="rv-card__price">${{ listing.current_price|floatformat:2|intcomma }}</span>
+            </div>
+            <div class="text-end">
+              <span class="rv-card__price-label">Range</span>
+              <span class="rv-card__price-range">
+                ${{ listing.min_public_price|floatformat:0|intcomma }}–${{ listing.max_public_price|floatformat:0|intcomma }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Countdown -->
+          <div class="rv-card__countdown"
+               data-end="{{ listing.end_time|date:'c' }}"
+               data-listing-id="{{ listing.pk }}">
+            <i class="bi bi-alarm me-1"></i>
+            <span class="countdown-display">Loading…</span>
+          </div>
+
+          <!-- Bid count -->
+          <div class="rv-card__meta">
+            <span><i class="bi bi-arrow-up-circle me-1"></i>{{ listing.bids.count }} bid{{ listing.bids.count|pluralize }}</span>
+            <span class="text-muted"><i class="bi bi-clock me-1"></i>{{ listing.end_time|date:"M j" }}</span>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="rv-card__footer">
+          <a href="{{ listing.get_absolute_url }}" class="btn rv-btn-primary w-100">
+            View &amp; Bid <i class="bi bi-arrow-right ms-1"></i>
+          </a>
+        </div>
+
+      </article>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="rv-empty-state">
+    <i class="bi bi-inbox rv-empty-state__icon"></i>
+    <h3>No Active Listings</h3>
+    <p>This seller has no live auctions at the moment.</p>
+    <a href="{% url 'listings:list' %}" class="btn rv-btn-outline">Browse All Auctions</a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

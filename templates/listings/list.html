@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% load static humanize %}
+
+{% block title %}Live Auctions{% endblock %}
+
+{% block content %}
+
+<!-- ── Hero Banner ──────────────────────────────────────────────────────── -->
+<section class="rv-hero">
+  <div class="container">
+    <div class="rv-hero__inner">
+      <h1 class="rv-hero__title">Live Auctions</h1>
+      <p class="rv-hero__subtitle">Bid on exclusive items. Reserve met? It's yours.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Filter Bar ────────────────────────────────────────────────────────── -->
+<section class="rv-filter-bar">
+  <div class="container">
+    <form method="get" class="rv-filter-form" id="filterForm">
+      <div class="row g-2 align-items-end">
+
+        <div class="col-12 col-md-4">
+          <label class="form-label rv-label" for="id_q">Search</label>
+          <div class="rv-input-icon">
+
+            <input type="text" name="q" id="id_q" class="form-control rv-input" placeholder="Search auctions…" value="{{ filter_form.q.value|default:'' }}">
+          </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+          <label class="form-label rv-label" for="id_category">Category</label>
+          <select name="category" id="id_category" class="form-select rv-select">
+            <option value="">All Categories</option>
+            {% for cat in categories %}
+            <option value="{{ cat.pk }}"
+              {% if filter_form.category.value == cat.pk|stringformat:"s" %}selected{% endif %}>
+              {{ cat.name }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-6 col-md-3">
+          <label class="form-label rv-label" for="id_order_by">Sort By</label>
+          <select name="order_by" id="id_order_by" class="form-select rv-select">
+            <option value="end_time" {% if filter_form.order_by.value == 'end_time' %}selected{% endif %}>Ending Soonest</option>
+            <option value="-end_time" {% if filter_form.order_by.value == '-end_time' %}selected{% endif %}>Ending Latest</option>
+            <option value="min_public_price" {% if filter_form.order_by.value == 'min_public_price' %}selected{% endif %}>Price: Low → High</option>
+            <option value="-min_public_price" {% if filter_form.order_by.value == '-min_public_price' %}selected{% endif %}>Price: High → Low</option>
+          </select>
+        </div>
+
+        <div class="col-12 col-md-2 d-flex gap-2">
+          <button type="submit" class="btn rv-btn-primary w-100">
+            <i class="bi bi-funnel me-1"></i>Filter
+          </button>
+          <a href="{% url 'listings:list' %}" class="btn rv-btn-outline">
+            <i class="bi bi-x-lg"></i>
+          </a>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- ── Listings Grid ─────────────────────────────────────────────────────── -->
+<section class="rv-listings-section">
+  <div class="container">
+
+    {% if page_obj.object_list %}
+    <p class="rv-results-count">
+      Showing <strong>{{ page_obj.paginator.count }}</strong> active auction{{ page_obj.paginator.count|pluralize }}
+    </p>
+
+    <div class="row g-4">
+      {% for listing in page_obj %}
+      <div class="col-12 col-sm-6 col-lg-3">
+        <article class="rv-card">
+
+          <!-- Image -->
+          <a href="{{ listing.get_absolute_url }}" class="rv-card__img-link">
+            {% with primary=listing.primary_image %}
+            {% if primary %}
+              <img src="{{ primary.image.url }}" alt="{{ listing.title }}" class="rv-card__img" loading="lazy">
+            {% else %}
+              <div class="rv-card__img-placeholder">
+                <i class="bi bi-image"></i>
+              </div>
+            {% endif %}
+            {% endwith %}
+            <span class="rv-card__category-badge">{{ listing.category.name }}</span>
+          </a>
+
+          <!-- Body -->
+          <div class="rv-card__body">
+            <h2 class="rv-card__title">
+              <a href="{{ listing.get_absolute_url }}">{{ listing.title }}</a>
+            </h2>
+
+            <!-- Price row -->
+            <div class="rv-card__price-row">
+              <div>
+                <span class="rv-card__price-label">Current Bid</span>
+                <span class="rv-card__price">${{ listing.current_price|floatformat:2|intcomma }}</span>
+              </div>
+              <div class="text-end">
+                <span class="rv-card__price-label">Range</span>
+                <span class="rv-card__price-range">
+                  ${{ listing.min_public_price|floatformat:0|intcomma }}–${{ listing.max_public_price|floatformat:0|intcomma }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Countdown -->
+            <div class="rv-card__countdown"
+                 data-end="{{ listing.end_time|date:'c' }}"
+                 data-listing-id="{{ listing.pk }}">
+              <i class="bi bi-alarm me-1"></i>
+              <span class="countdown-display">Loading…</span>
+            </div>
+
+            <!-- Bid count -->
+            <div class="rv-card__meta">
+              <span><i class="bi bi-arrow-up-circle me-1"></i>{{ listing.bids.count }} bid{{ listing.bids.count|pluralize }}</span>
+              <span><i class="bi bi-person me-1"></i>{{ listing.seller.full_name }}</span>
+            </div>
+
+          </div>
+
+          <!-- Footer -->
+          <div class="rv-card__footer">
+            <a href="{{ listing.get_absolute_url }}" class="btn rv-btn-primary w-100">
+              View &amp; Bid <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+          </div>
+
+        </article>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="mt-5">
+      {% include "components/pagination.html" %}
+    </div>
+
+    {% else %}
+    <div class="rv-empty-state">
+      <i class="bi bi-inbox rv-empty-state__icon"></i>
+      <h3>No Active Auctions</h3>
+      <p>Check back soon — new items are added regularly.</p>
+      <a href="{% url 'listings:list' %}" class="btn rv-btn-outline">Clear Filters</a>
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+
+{% endblock %}

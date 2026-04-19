@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+{% load static humanize %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+  <!-- Welcome Header -->
+  <div class="rv-dashboard-header">
+    <div class="rv-dashboard-header__avatar">{{ user.full_name|first|upper }}</div>
+    <div>
+      <h1 class="rv-dashboard-header__name">{{ user.full_name }}</h1>
+      <div class="rv-dashboard-header__meta">
+        <span class="rv-chip">{{ user.get_role_display }}</span>
+        {% if user.is_validated_by_admin %}
+          <span class="rv-chip rv-chip--success"><i class="bi bi-check-circle me-1"></i>Validated</span>
+        {% else %}
+          <span class="rv-chip rv-chip--warning"><i class="bi bi-clock me-1"></i>Pending Validation</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Validation notice -->
+  {% if not user.is_validated_by_admin %}
+  <div class="rv-notice rv-notice--warning mb-4">
+    <i class="bi bi-shield-exclamation rv-notice__icon"></i>
+    <div>
+      <strong>Account Pending Validation</strong>
+      <p class="mb-0">An administrator needs to verify your identity before you can place bids. This usually takes 24–48 hours.</p>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Incomplete profile notice -->
+  {% if not is_profile_complete %}
+  <div class="rv-notice rv-notice--warning mb-4">
+    <i class="bi bi-person-exclamation rv-notice__icon"></i>
+    <div>
+      <strong>Complete Your Profile to Start Bidding</strong>
+      <p class="mb-0">
+        Your profile is missing required information (name, phone, address, or national ID).
+        <a href="{% url 'accounts:profile' %}" class="fw-semibold">Complete your profile</a> before you can place bids.
+      </p>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Stats Row -->
+  <div class="row g-4 mb-5">
+    <div class="col-6 col-lg-3">
+      <div class="rv-stat-card">
+        <i class="bi bi-arrow-up-circle rv-stat-card__icon rv-stat-card__icon--blue"></i>
+        <div class="rv-stat-card__value">{{ recent_bids.count|default:"0" }}</div>
+        <div class="rv-stat-card__label">Total Bids</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="rv-stat-card">
+        <i class="bi bi-bag-check rv-stat-card__icon rv-stat-card__icon--green"></i>
+        <div class="rv-stat-card__value">{{ recent_orders.count|default:"0" }}</div>
+        <div class="rv-stat-card__label">Orders</div>
+      </div>
+    </div>
+    {% if user.is_seller %}
+    <div class="col-6 col-lg-3">
+      <div class="rv-stat-card">
+        <i class="bi bi-collection rv-stat-card__icon rv-stat-card__icon--orange"></i>
+        <div class="rv-stat-card__value">{{ my_listings.count|default:"0" }}</div>
+        <div class="rv-stat-card__label">My Listings</div>
+      </div>
+    </div>
+    {% endif %}
+    <div class="col-6 col-lg-3">
+      <div class="rv-stat-card">
+        <i class="bi bi-clock-history rv-stat-card__icon rv-stat-card__icon--purple"></i>
+        <div class="rv-stat-card__value">—</div>
+        <div class="rv-stat-card__label">Active Watches</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- Recent Bids -->
+    <div class="col-lg-6">
+      <div class="rv-dashboard-widget">
+        <div class="rv-dashboard-widget__header">
+          <h3>Recent Bids</h3>
+          <a href="{% url 'accounts:auction_history' %}" class="rv-widget-link">View All</a>
+        </div>
+        {% if recent_bids %}
+        <ul class="rv-activity-list">
+          {% for bid in recent_bids %}
+          <li class="rv-activity-list__item">
+            <div class="rv-activity-list__icon rv-activity-list__icon--bid">
+              <i class="bi bi-arrow-up"></i>
+            </div>
+            <div class="rv-activity-list__body">
+              <a href="{{ bid.listing.get_absolute_url }}" class="rv-activity-list__title">
+                {{ bid.listing.title|truncatechars:35 }}
+              </a>
+              <span class="rv-activity-list__meta">{{ bid.timestamp|timesince }} ago</span>
+            </div>
+            <div class="rv-activity-list__value">${{ bid.amount|floatformat:2|intcomma }}</div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="rv-dashboard-widget__empty">No bids placed yet. <a href="{% url 'listings:list' %}">Browse auctions</a></p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="col-lg-6">
+      <div class="rv-dashboard-widget">
+        <div class="rv-dashboard-widget__header">
+          <h3>Recent Orders</h3>
+          <a href="{% url 'orders:list' %}" class="rv-widget-link">View All</a>
+        </div>
+        {% if recent_orders %}
+        <ul class="rv-activity-list">
+          {% for order in recent_orders %}
+          <li class="rv-activity-list__item">
+            <div class="rv-activity-list__icon rv-activity-list__icon--order">
+              <i class="bi bi-box"></i>
+            </div>
+            <div class="rv-activity-list__body">
+              <a href="{{ order.get_absolute_url }}" class="rv-activity-list__title">
+                {{ order.listing.title|truncatechars:30 }}
+              </a>
+              <span class="rv-status-pill rv-status--{{ order.status|lower }} rv-status-pill--xs">
+                {{ order.get_status_display }}
+              </span>
+            </div>
+            <div class="rv-activity-list__value">${{ order.winning_bid_amount|floatformat:2|intcomma }}</div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="rv-dashboard-widget__empty">No orders yet. Win an auction to create one.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Seller: My Listings -->
+    {% if user.is_seller %}
+    <div class="col-12">
+      <div class="rv-dashboard-widget">
+        <div class="rv-dashboard-widget__header">
+          <h3>My Listings</h3>
+          <div class="d-flex gap-2">
+            <a href="{% url 'listings:create' %}" class="btn btn-sm rv-btn-primary">
+              <i class="bi bi-plus me-1"></i>New
+            </a>
+            <a href="{% url 'listings:my_listings' %}" class="rv-widget-link">View All</a>
+          </div>
+        </div>
+        {% if my_listings %}
+        <div class="table-responsive">
+          <table class="table rv-table mb-0">
+            <thead>
+              <tr><th>Title</th><th>Status</th><th>Bids</th><th>End Date</th></tr>
+            </thead>
+            <tbody>
+              {% for lst in my_listings %}
+              <tr>
+                <td><a href="{{ lst.get_absolute_url }}">{{ lst.title|truncatechars:45 }}</a></td>
+                <td><span class="rv-status-pill rv-status--{{ lst.status|lower }}">{{ lst.get_status_display }}</span></td>
+                <td>{{ lst.bids.count }}</td>
+                <td>{{ lst.end_time|date:"M j, Y" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="rv-dashboard-widget__empty">
+          No listings yet. <a href="{% url 'listings:create' %}">Create your first listing.</a>
+        </p>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

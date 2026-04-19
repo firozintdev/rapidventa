@@ -1,0 +1,459 @@
+{% extends "base.html" %}
+{% load static humanize %}
+
+{% block title %}{{ listing.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row g-5">
+
+    <!-- ── Left Column: Image + Description ──────────────────────────────── -->
+    <div class="col-lg-7">
+
+      <!-- Breadcrumb -->
+      <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb rv-breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'listings:list' %}">Auctions</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'listings:list' %}?category={{ listing.category.pk }}">{{ listing.category.name }}</a></li>
+          <li class="breadcrumb-item active">{{ listing.title|truncatechars:40 }}</li>
+        </ol>
+      </nav>
+
+      <!-- Images -->
+      <div class="rv-detail__image-wrap mb-4">
+        {% with images=listing.images.all %}
+        {% if images %}
+          {% if images|length == 1 %}
+            <img src="{{ images.0.image.url }}" alt="{{ listing.title }}" class="rv-detail__image">
+          {% else %}
+            <div id="listingCarousel" class="carousel slide" data-bs-ride="carousel">
+              <div class="carousel-indicators">
+                {% for img in images %}
+                <button type="button" data-bs-target="#listingCarousel"
+                        data-bs-slide-to="{{ forloop.counter0 }}"
+                        {% if forloop.first %}class="active" aria-current="true"{% endif %}
+                        aria-label="Image {{ forloop.counter }}"></button>
+                {% endfor %}
+              </div>
+              <div class="carousel-inner">
+                {% for img in images %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                  <img src="{{ img.image.url }}" alt="{{ listing.title }} – photo {{ forloop.counter }}"
+                       class="rv-detail__image d-block w-100">
+                </div>
+                {% endfor %}
+              </div>
+              <button class="carousel-control-prev" type="button" data-bs-target="#listingCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#listingCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+              </button>
+            </div>
+            <!-- Thumbnail strip -->
+            <div class="d-flex gap-2 mt-2 flex-wrap">
+              {% for img in images %}
+              <img src="{{ img.image.url }}" alt="thumb {{ forloop.counter }}"
+                   class="rv-detail__thumb{% if forloop.first %} rv-detail__thumb--active{% endif %}"
+                   data-bs-target="#listingCarousel" data-bs-slide-to="{{ forloop.counter0 }}"
+                   style="cursor:pointer; width:64px; height:64px; object-fit:cover; border-radius:6px; opacity:{% if forloop.first %}1{% else %}0.6{% endif %};">
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% else %}
+          <div class="rv-detail__image-placeholder">
+            <i class="bi bi-image"></i>
+            <span>No image provided</span>
+          </div>
+        {% endif %}
+        {% endwith %}
+        <!-- Status ribbon -->
+        <span class="rv-detail__status-ribbon rv-status--{{ listing.status|lower }}">
+          {{ listing.get_status_display }}
+        </span>
+      </div>
+
+      <!-- Title & Seller -->
+      <div class="rv-detail__description">
+        <h1 class="rv-detail__title">{{ listing.title }}</h1>
+        <div class="rv-detail__seller-line">
+          <i class="bi bi-person-circle me-1"></i>
+          Listed by
+          <a href="{% url 'accounts:seller_profile' listing.seller.pk %}" class="rv-detail__seller-link">
+            <strong>{{ listing.seller.full_name }}</strong>
+          </a>
+          &nbsp;·&nbsp;
+          <span class="text-muted">{{ listing.category.name }}</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Right Column: Bid Panel ────────────────────────────────────────── -->
+    <div class="col-lg-5">
+      <div class="rv-bid-panel" id="bidPanel">
+
+        <!-- Timer -->
+        <div class="rv-bid-panel__timer" id="detailTimer"
+             data-end="{{ listing.end_time|date:'c' }}">
+          <div class="rv-timer-label">Time Remaining</div>
+          <div class="rv-timer-display" id="timerDisplay">—</div>
+          <div class="rv-timer-dates">
+            <span><i class="bi bi-play-circle me-1"></i>{{ listing.start_time|date:"M j, Y H:i" }}</span>
+            <span><i class="bi bi-stop-circle me-1"></i>{{ listing.end_time|date:"M j, Y H:i" }}</span>
+          </div>
+        </div>
+
+        <!-- Price Summary -->
+        <div class="rv-bid-panel__prices">
+          <div class="rv-price-row">
+            <span class="rv-price-row__label">Starting Price</span>
+            <span class="rv-price-row__value">${{ listing.min_public_price|floatformat:2|intcomma }}</span>
+          </div>
+          <div class="rv-price-row rv-price-row--current">
+            <span class="rv-price-row__label">Current Highest Bid</span>
+            <span class="rv-price-row__value rv-price-row__value--highlight" id="currentBid">
+              ${{ listing.current_price|floatformat:2|intcomma }}
+            </span>
+          </div>
+          <div class="rv-price-row">
+            <span class="rv-price-row__label">Price Range</span>
+            <span class="rv-price-row__value rv-price-row__value--range">
+              ${{ listing.min_public_price|floatformat:0|intcomma }} – ${{ listing.max_public_price|floatformat:0|intcomma }}
+            </span>
+          </div>
+          <div class="rv-price-row">
+            <span class="rv-price-row__label">Total Bids</span>
+            <span class="rv-price-row__value"><strong>{{ listing.bids.count }}</strong></span>
+          </div>
+        </div>
+
+        <!-- Bid Form -->
+        {% if listing.is_active %}
+          {% if user.is_authenticated %}
+            {% if user.can_bid %}
+              {% if user != listing.seller %}
+              <form method="post" action="{% url 'bids:place' listing.pk %}" class="rv-bid-form">
+                {% csrf_token %}
+                <label class="rv-label mb-1" for="id_amount">Your Bid Amount (USD)</label>
+                <div class="rv-bid-input-group">
+                  <span class="rv-bid-input-prefix">$</span>
+                  <input type="number" name="amount" id="id_amount"
+                         class="form-control rv-bid-input"
+                         step="0.01" min="0.01"
+                         placeholder="{{ listing.current_price|floatformat:2 }}"
+                         required>
+                </div>
+                <p class="rv-bid-hint">
+                  <i class="bi bi-info-circle me-1"></i>
+                  Minimum next bid: <strong>${{ listing.current_price|floatformat:2|intcomma }}</strong>
+                </p>
+                <button type="submit" class="btn rv-btn-bid w-100">
+                  <i class="bi bi-lightning-charge-fill me-2"></i>Place Bid
+                </button>
+              </form>
+              {% else %}
+              <div class="rv-bid-panel__notice rv-bid-panel__notice--info">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                You cannot bid on your own listing.
+              </div>
+              {% endif %}
+            {% else %}
+            <div class="rv-bid-panel__notice rv-bid-panel__notice--warning">
+              <i class="bi bi-shield-exclamation me-2"></i>
+              <div>
+                <strong>Account Pending Validation</strong>
+                <p class="mb-0 mt-1">An admin needs to approve your account before you can bid.</p>
+              </div>
+            </div>
+            {% endif %}
+          {% else %}
+          <div class="rv-bid-panel__notice rv-bid-panel__notice--cta">
+            <p><i class="bi bi-lock me-2"></i>Sign in to place your bid</p>
+            <div class="d-flex gap-2">
+              <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn rv-btn-primary flex-fill">Log In</a>
+              <a href="{% url 'accounts:register' %}" class="btn rv-btn-outline flex-fill">Register</a>
+            </div>
+          </div>
+          {% endif %}
+        {% else %}
+        <div class="rv-bid-panel__notice rv-bid-panel__notice--closed">
+          <i class="bi bi-lock-fill me-2"></i>
+          This auction is <strong>{{ listing.get_status_display }}</strong>.
+        </div>
+        {% endif %}
+
+
+        <!-- Buy Now -->
+        {% if listing.is_buy_now_available %}
+        <div class="rv-bid-panel__section">
+          <div class="rv-buy-now-panel__header">
+            <span><i class="bi bi-bag-check-fill me-2"></i>Buy Now</span>
+            <span class="rv-buy-now-panel__price">${{ listing.buy_now_price|floatformat:2|intcomma }}</span>
+          </div>
+          <p class="rv-buy-now-panel__hint">Skip the auction — buy immediately at this fixed price.</p>
+          {% if user.is_authenticated %}
+            {% if user == listing.seller %}
+            <div class="rv-bid-panel__notice rv-bid-panel__notice--info">
+              <i class="bi bi-info-circle-fill me-2"></i>You cannot purchase your own listing.
+            </div>
+            {% elif user.can_bid %}
+            <form method="post" action="{% url 'listings:buy_now' listing.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="btn rv-btn-primary w-100">
+                <i class="bi bi-bag-check-fill me-2"></i>Buy Now for ${{ listing.buy_now_price|floatformat:2|intcomma }}
+              </button>
+            </form>
+            {% else %}
+            <div class="rv-bid-panel__notice rv-bid-panel__notice--warning">
+              <i class="bi bi-shield-exclamation me-2"></i>
+              Account pending validation — Buy Now will be available once approved.
+            </div>
+            {% endif %}
+          {% else %}
+          <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn rv-btn-primary w-100">
+            <i class="bi bi-lock me-2"></i>Log in to Buy Now
+          </a>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Watch / Unwatch -->
+        <div class="rv-bid-panel__section">
+          {% if user.is_authenticated and user != listing.seller %}
+          <form method="post" action="{% url 'listings:toggle_watchlist' listing.pk %}">
+            {% csrf_token %}
+            {% if is_watching %}
+            <button type="submit" class="btn w-100">
+              <i class="bi bi-bookmark-check-fill me-2"></i>Watching — Click to Unwatch
+            </button>
+            {% else %}
+            <button type="submit" class="btn w-100">
+              <i class="bi bi-bookmark me-2"></i>Watch this Auction
+            </button>
+            {% endif %}
+          </form>
+          {% elif not user.is_authenticated %}
+          <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn rv-btn-outline w-100">
+            <i class="bi bi-bookmark me-2"></i>Log in to Watch
+          </a>
+          {% endif %}
+        </div>
+
+      </div>{# /rv-bid-panel #}
+    </div>
+  </div>
+
+  <!-- ── Product Tabs ──────────────────────────────────────────────────────── -->
+  <div class="row mt-5">
+    <div class="col-12">
+      <ul class="nav nav-tabs rv-product-tabs" id="productTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="tab-description" data-bs-toggle="tab"
+                  data-bs-target="#pane-description" type="button" role="tab"
+                  aria-controls="pane-description" aria-selected="true">
+            <i class="bi bi-card-text me-1"></i>Description
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-info" data-bs-toggle="tab"
+                  data-bs-target="#pane-info" type="button" role="tab"
+                  aria-controls="pane-info" aria-selected="false">
+            <i class="bi bi-info-circle me-1"></i>Additional Information
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-reviews" data-bs-toggle="tab"
+                  data-bs-target="#pane-reviews" type="button" role="tab"
+                  aria-controls="pane-reviews" aria-selected="false">
+            <i class="bi bi-star me-1"></i>Reviews
+            {% if reviews %}<span class="badge bg-secondary ms-1">{{ reviews|length }}</span>{% endif %}
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content rv-product-tabs__content" id="productTabsContent">
+
+        <!-- Description -->
+        <div class="tab-pane fade show active" id="pane-description" role="tabpanel" aria-labelledby="tab-description">
+          <div class="rv-tab-body">
+            {{ listing.description|linebreaks }}
+          </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="tab-pane fade" id="pane-info" role="tabpanel" aria-labelledby="tab-info">
+          <div class="rv-tab-body">
+            <table class="table rv-info-table">
+              <tbody>
+                <tr>
+                  <th>Category</th>
+                  <td>{{ listing.category.name }}</td>
+                </tr>
+                {% if listing.sku %}
+                <tr>
+                  <th>SKU</th>
+                  <td>{{ listing.sku }}</td>
+                </tr>
+                {% endif %}
+                {% if listing.brand %}
+                <tr>
+                  <th>Brand</th>
+                  <td>{{ listing.brand }}</td>
+                </tr>
+                {% endif %}
+                {% if listing.weight %}
+                <tr>
+                  <th>Weight</th>
+                  <td>{{ listing.weight }}</td>
+                </tr>
+                {% endif %}
+                {% if listing.dimensions %}
+                <tr>
+                  <th>Dimensions</th>
+                  <td>{{ listing.dimensions }}</td>
+                </tr>
+                {% endif %}
+                {% if listing.tags_list %}
+                <tr>
+                  <th>Tags</th>
+                  <td>
+                    {% for tag in listing.tags_list %}
+                      <span class="badge bg-secondary rv-tag">{{ tag }}</span>
+                    {% endfor %}
+                  </td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Reviews -->
+        <div class="tab-pane fade" id="pane-reviews" role="tabpanel" aria-labelledby="tab-reviews">
+          <div class="rv-tab-body" id="reviews">
+
+            {% if reviews %}
+            <div class="rv-reviews-list mb-4">
+              {% for review in reviews %}
+              <div class="rv-review-item">
+                <div class="rv-review-item__header">
+                  <span class="rv-review-item__author">
+                    <i class="bi bi-person-circle me-1"></i>{{ review.user.full_name }}
+                  </span>
+                  <span class="rv-review-item__stars">
+                    {% for i in "12345" %}
+                      {% if forloop.counter <= review.rating %}
+                        <i class="bi bi-star-fill text-warning"></i>
+                      {% else %}
+                        <i class="bi bi-star text-muted"></i>
+                      {% endif %}
+                    {% endfor %}
+                  </span>
+                  <span class="rv-review-item__date text-muted ms-2">
+                    {{ review.created_at|date:"M j, Y" }}
+                  </span>
+                </div>
+                {% if review.comment %}
+                <p class="rv-review-item__comment mb-0">{{ review.comment }}</p>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-muted">No reviews yet. Be the first to leave one!</p>
+            {% endif %}
+
+            <!-- Review Form -->
+            {% if user.is_authenticated %}
+              {% if user_reviewed %}
+              <div class="rv-bid-panel__notice rv-bid-panel__notice--info mt-3">
+                <i class="bi bi-check-circle-fill me-2"></i>You have already reviewed this listing.
+              </div>
+              {% else %}
+              <div class="rv-review-form-wrap mt-3">
+                <h5 class="fw-semibold mb-3">Leave a Review</h5>
+                <form method="post" action="{% url 'listings:review' listing.pk %}">
+                  {% csrf_token %}
+                  <div class="rv-form__group mb-3">
+                    <label class="rv-label">Your Rating *</label>
+                    <div class="rv-star-rating">
+                      {% for value, label in review_form.rating.field.choices %}
+                      <label class="rv-star-rating__label" title="{{ value }} star{{ value|pluralize }}">
+                        <input type="radio" name="rating" value="{{ value }}"
+                               class="rv-star-rating__input"
+                               {% if review_form.rating.value == value %}checked{% endif %} required>
+                        <i class="bi bi-star-fill"></i>
+                      </label>
+                      {% endfor %}
+                    </div>
+                  </div>
+                  <div class="rv-form__group mb-3">
+                    <label class="rv-label" for="id_comment">Comment (optional)</label>
+                    <textarea name="comment" id="id_comment" class="form-control rv-input" rows="3"
+                              placeholder="Share your experience with this item…">{{ review_form.comment.value|default:'' }}</textarea>
+                  </div>
+                  <button type="submit" class="btn rv-btn-primary">
+                    <i class="bi bi-send me-2"></i>Submit Review
+                  </button>
+                </form>
+              </div>
+              {% endif %}
+            {% else %}
+            <div class="rv-bid-panel__notice rv-bid-panel__notice--cta mt-3">
+              <p class="mb-2"><i class="bi bi-lock me-2"></i>Sign in to leave a review</p>
+              <a href="{% url 'accounts:login' %}?next={{ request.path }}#reviews" class="btn rv-btn-primary btn-sm">Log In</a>
+            </div>
+            {% endif %}
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Bid History ──────────────────────────────────────────────────────── -->
+  {% if bids %}
+  <div class="row mt-5">
+    <div class="col-12">
+      <h3 class="rv-section-title">
+        <i class="bi bi-arrow-up-circle me-2"></i>Bid History
+        <span class="rv-section-title__count">{{ listing.bids.count }}</span>
+      </h3>
+      <div class="rv-bid-history">
+        <table class="table rv-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Bidder</th>
+              <th>Amount</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for bid in bids %}
+            <tr {% if forloop.first %}class="rv-table__row--winner"{% endif %}>
+              <td>
+                {% if forloop.first %}
+                  <i class="bi bi-trophy-fill text-warning"></i>
+                {% else %}
+                  {{ forloop.counter }}
+                {% endif %}
+              </td>
+              <td>{{ bid.user.full_name }}</td>
+              <td><strong>${{ bid.amount|floatformat:2|intcomma }}</strong></td>
+              <td class="text-muted">{{ bid.timestamp|date:"M j, Y H:i" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

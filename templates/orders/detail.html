@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% load static humanize %}
+
+{% block title %}Order {{ order.short_reference }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+
+      <!-- Order Header -->
+      <div class="rv-order-card">
+        <div class="rv-order-card__header">
+          <div>
+            <h1 class="rv-order-card__title">Order Details</h1>
+            <code class="rv-order-card__ref">{{ order.reference }}</code>
+          </div>
+          <span class="rv-status-pill rv-status--{{ order.status|lower }} rv-status-pill--lg">
+            {{ order.get_status_display }}
+          </span>
+        </div>
+
+        <!-- Progress tracker -->
+        <div class="rv-order-progress">
+          {% with statuses="PENDING_PAYMENT,PAID,SHIPPED,COMPLETED" %}
+          {% for step_status in statuses|split:"," %}
+          <div class="rv-order-progress__step
+            {% if order.status == step_status %}rv-order-progress__step--active
+            {% elif order.status == 'COMPLETED' or order.status == 'SHIPPED' and step_status != 'COMPLETED' or order.status == 'PAID' and step_status == 'PENDING_PAYMENT' %}rv-order-progress__step--done
+            {% endif %}">
+            <div class="rv-order-progress__dot"></div>
+            <div class="rv-order-progress__label">{{ step_status|title|cut:"_" }}</div>
+          </div>
+          {% endfor %}
+          {% endwith %}
+        </div>
+
+        <!-- Item info -->
+        <div class="rv-order-card__body">
+          <div class="rv-order-item">
+            {% with primary=order.listing.primary_image %}
+            {% if primary %}
+              <img src="{{ primary.image.url }}" class="rv-order-item__img" alt="{{ order.listing.title }}">
+            {% else %}
+              <div class="rv-order-item__img rv-order-item__img--placeholder"><i class="bi bi-image"></i></div>
+            {% endif %}
+            {% endwith %}
+            <div class="rv-order-item__info">
+              <h3 class="rv-order-item__title">{{ order.listing.title }}</h3>
+              <p class="text-muted mb-1">{{ order.listing.category.name }}</p>
+              <p class="text-muted mb-0">Seller: {{ order.listing.seller.full_name }}</p>
+            </div>
+            <div class="rv-order-item__price">
+              <span class="rv-order-item__price-label">Winning Bid</span>
+              <span class="rv-order-item__price-value">${{ order.winning_bid_amount|floatformat:2|intcomma }}</span>
+            </div>
+          </div>
+
+          <hr class="rv-divider">
+
+          <!-- Details grid -->
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="rv-order-meta">
+                <span class="rv-order-meta__label">Buyer</span>
+                <span class="rv-order-meta__value">{{ order.buyer.full_name }}</span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="rv-order-meta">
+                <span class="rv-order-meta__label">Order Date</span>
+                <span class="rv-order-meta__value">{{ order.created_at|date:"M j, Y H:i" }}</span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="rv-order-meta">
+                <span class="rv-order-meta__label">Tracking Number</span>
+                <span class="rv-order-meta__value">
+                  {% if order.tracking_number %}<code>{{ order.tracking_number }}</code>{% else %}Not yet assigned{% endif %}
+                </span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="rv-order-meta">
+                <span class="rv-order-meta__label">Shipping Address</span>
+                <span class="rv-order-meta__value">{{ order.shipping_address|default:"—" }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Staff Actions -->
+        {% if user.is_staff %}
+        <div class="rv-order-card__actions">
+          <h5 class="mb-3">Staff Actions</h5>
+          <div class="d-flex flex-wrap gap-3">
+
+            <!-- Advance Status -->
+            {% if order.status not in "COMPLETED,CANCELLED" %}
+            <form method="post" class="d-flex gap-2 align-items-end">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="advance">
+              {% if advance_form %}
+                <div>
+                  <label class="rv-label mb-1">Tracking # (optional)</label>
+                  <input type="text" name="tracking_number"
+                         class="form-control rv-input" placeholder="Tracking number"
+                         value="{{ advance_form.tracking_number.value|default:'' }}">
+                </div>
+              {% endif %}
+              <button type="submit" class="btn rv-btn-primary">
+                <i class="bi bi-arrow-right me-1"></i>Advance Status
+              </button>
+            </form>
+            {% endif %}
+
+            <!-- Cancel -->
+            {% if order.status not in "SHIPPED,COMPLETED,CANCELLED" %}
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="cancel">
+              <button type="submit" class="btn rv-btn-danger"
+                      onclick="return confirm('Cancel this order?')">
+                <i class="bi bi-x-circle me-1"></i>Cancel Order
+              </button>
+            </form>
+            {% endif %}
+
+          </div>
+        </div>
+        {% endif %}
+
+      </div>
+
+      <!-- Buyer: raise / view dispute -->
+      {% if user == order.buyer and order.status == "COMPLETED" %}
+      <div class="mt-3">
+        {% if not order.disputes.exists %}
+        <a href="{% url 'disputes:raise' order.reference %}" class="btn rv-btn-danger">
+          <i class="bi bi-exclamation-triangle me-2"></i>Raise a Dispute
+        </a>
+        {% else %}
+        <a href="{{ order.disputes.first.get_absolute_url }}" class="btn rv-btn-outline">
+          <i class="bi bi-exclamation-circle me-2"></i>View Dispute
+          <span class="badge bg-secondary ms-1">{{ order.disputes.first.get_status_display }}</span>
+        </a>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <div class="mt-3">
+        <a href="{% url 'orders:list' %}" class="btn rv-btn-outline">
+          <i class="bi bi-arrow-left me-1"></i>Back to Orders
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
