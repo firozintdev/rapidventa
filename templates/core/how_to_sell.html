@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}How to Sell{% endblock %}
+{% block meta_description %}Learn how to list and sell your items on RapidVenta. Follow our step-by-step guide to register as a seller, create listings, and get paid.{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/how_to.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Breadcrumb Banner ──────────────────────────────────── -->
+<div class="ht-breadcrumb">
+  <div class="container">
+    <div class="ht-breadcrumb__content">
+      <h1>How to Sell</h1>
+      <ul class="ht-breadcrumb__list">
+        <li><a href="{% url 'listings:list' %}">Home</a></li>
+        <li>How to Sell</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── Steps Section ─────────────────────────────────────── -->
+<div class="ht-section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+
+        <div class="ht-steps-wrap">
+
+          <!-- Step 1 — left -->
+          <div class="row mb-4 ht-step-row ht-step-row--left align-items-center">
+            <div class="col-md-5">
+              <div class="ht-step">
+                <span class="ht-step__label">Step-01</span>
+                <h2>Registration</h2>
+                <p>Create a free account and select the Seller role during registration. Submit the required identity documents. Our admin team reviews and validates your seller account before you can list items.</p>
+                <div class="ht-step__arrow"><i class="bi bi-person-plus-fill"></i></div>
+              </div>
+            </div>
+            <div class="col-md-2 d-none d-md-flex justify-content-center">
+              <div class="ht-step-dot"></div>
+            </div>
+            <div class="col-md-5"></div>
+          </div>
+
+          <!-- Step 2 — right -->
+          <div class="row mb-4 ht-step-row ht-step-row--right align-items-center">
+            <div class="col-md-5"></div>
+            <div class="col-md-2 d-none d-md-flex justify-content-center">
+              <div class="ht-step-dot"></div>
+            </div>
+            <div class="col-md-5">
+              <div class="ht-step">
+                <span class="ht-step__label">Step-02</span>
+                <h2>Select Platform</h2>
+                <p>Once validated, access your seller dashboard. Choose a pricing structure — set a minimum public price, maximum public price, and optionally a secret reserve price to protect your bottom line.</p>
+                <div class="ht-step__arrow"><i class="bi bi-grid-1x2-fill"></i></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3 — left -->
+          <div class="row mb-4 ht-step-row ht-step-row--left align-items-center">
+            <div class="col-md-5">
+              <div class="ht-step">
+                <span class="ht-step__label">Step-03</span>
+                <h2>List Your Item</h2>
+                <p>Create your auction listing with a clear title, detailed description, high-quality photos, and an accurate category. Set your start and end times to control when the auction runs live.</p>
+                <div class="ht-step__arrow"><i class="bi bi-plus-circle-fill"></i></div>
+              </div>
+            </div>
+            <div class="col-md-2 d-none d-md-flex justify-content-center">
+              <div class="ht-step-dot"></div>
+            </div>
+            <div class="col-md-5"></div>
+          </div>
+
+          <!-- Step 4 — right -->
+          <div class="row mb-4 ht-step-row ht-step-row--right align-items-center">
+            <div class="col-md-5"></div>
+            <div class="col-md-2 d-none d-md-flex justify-content-center">
+              <div class="ht-step-dot"></div>
+            </div>
+            <div class="col-md-5">
+              <div class="ht-step">
+                <span class="ht-step__label">Step-04</span>
+                <h2>Manage Your Auction</h2>
+                <p>Track live bids in real time from your seller dashboard. Use our bulk CSV upload to add multiple listings at once. Monitor performance with detailed analytics on each listing.</p>
+                <div class="ht-step__arrow"><i class="bi bi-bar-chart-line-fill"></i></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 5 — left -->
+          <div class="row ht-step-row ht-step-row--left align-items-center">
+            <div class="col-md-5">
+              <div class="ht-step">
+                <span class="ht-step__label">Step-05</span>
+                <h2>Get Paid</h2>
+                <p>When your auction closes and a winner completes payment, the funds are processed securely. Our team coordinates the handover and keeps you updated at every stage of the transaction.</p>
+                <div class="ht-step__arrow"><i class="bi bi-currency-dollar"></i></div>
+              </div>
+            </div>
+            <div class="col-md-2 d-none d-md-flex justify-content-center">
+              <div class="ht-step-dot"></div>
+            </div>
+            <div class="col-md-5"></div>
+          </div>
+
+        </div>
+
+        <!-- Guidelines cards -->
+        <div class="ht-guidelines">
+          <h2>Seller <span>Guidelines</span></h2>
+          <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+              <div class="ht-guide-card">
+                <div class="ht-guide-card__icon"><i class="bi bi-camera-fill"></i></div>
+                <h5>Quality Photos</h5>
+                <p>Clear, well-lit photos dramatically increase bidding activity. Upload multiple angles to give buyers a full view of your item.</p>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+              <div class="ht-guide-card">
+                <div class="ht-guide-card__icon"><i class="bi bi-tag-fill"></i></div>
+                <h5>Accurate Pricing</h5>
+                <p>Set realistic starting prices. A low minimum attracts more bidders and often drives competitive prices higher naturally.</p>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+              <div class="ht-guide-card">
+                <div class="ht-guide-card__icon"><i class="bi bi-file-text-fill"></i></div>
+                <h5>Detailed Descriptions</h5>
+                <p>Be precise about condition, dimensions, brand, and any defects. Transparency builds trust and reduces disputes after the sale.</p>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+              <div class="ht-guide-card">
+                <div class="ht-guide-card__icon"><i class="bi bi-upload"></i></div>
+                <h5>Bulk Upload via CSV</h5>
+                <p>Selling multiple items? Use our CSV upload tool to add hundreds of listings at once — saving hours of manual data entry.</p>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+              <div class="ht-guide-card">
+                <div class="ht-guide-card__icon"><i class="bi bi-graph-up-arrow"></i></div>
+                <h5>Track with Analytics</h5>
+                <p>Access your seller analytics dashboard to see bid counts, total revenue, and auction performance to improve future listings.</p>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+              <div class="ht-guide-card">
+                <div class="ht-guide-card__icon"><i class="bi bi-shield-fill-check"></i></div>
+                <h5>Seller Protection</h5>
+                <p>Our platform includes a secret reserve price — your auction won't close below your minimum acceptable price, protecting your investment.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="ht-cta">
+          <div class="ht-cta__text">
+            {% if user.is_authenticated and user.is_seller %}
+            <h3>Ready to List Your First Item?</h3>
+            <p>Your seller account is active — create your first auction now.</p>
+            {% else %}
+            <h3>Become a Seller on RapidVenta</h3>
+            <p>Register today to start listing your items and reaching thousands of buyers.</p>
+            {% endif %}
+          </div>
+          {% if user.is_authenticated and user.is_seller %}
+          <a href="{% url 'listings:create' %}" class="ht-cta__btn">
+            Create Listing <i class="bi bi-plus-circle"></i>
+          </a>
+          {% else %}
+          <a href="{% url 'accounts:register' %}" class="ht-cta__btn">
+            Register as Seller <i class="bi bi-arrow-right"></i>
+          </a>
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── Footer Top Banners ─────────────────────────────────── -->
+<div class="home1-footer-top-area">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="footer-top-banner">
+          <div class="banner-content">
+            <span>Also see</span>
+            <h2><a href="{% url 'core:how_to_bid' %}">How to bid your item</a></h2>
+          </div>
+          <a href="{% url 'core:how_to_bid' %}" class="arrow"><i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="footer-top-banner two">
+          <div class="banner-content">
+            <span>Currently viewing</span>
+            <h2><a href="{% url 'core:how_to_sell' %}">How to sell your item</a></h2>
+          </div>
+          <a href="{% url 'core:how_to_sell' %}" class="arrow"><i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,43 +1,50 @@
 /* ============================================================
    RapidVenta – Main Stylesheet
-   Theme: Deep Navy + Metallic Gold + Warm Ivory | Auction Platform
+   Theme: Probid-style | Teal Primary + Playfair Display headings
    ============================================================ */
 
 /* ── 1. Design Tokens ───────────────────────────────────────── */
 :root {
-  /* ── Navy (Primary — authority, trust) ─────────────────────── */
-  --rv-navy-50:   #E8EEF4;
-  --rv-navy-100:  #C4D0DD;
-  --rv-navy-200:  #90A8BB;
-  --rv-navy-300:  #5C8099;
-  --rv-navy-400:  #2A5877;
-  --rv-navy-500:  #0A2540;   /* primary — #0A2540 */
-  --rv-navy-600:  #081D32;
-  --rv-navy-700:  #061524;
-  --rv-navy-800:  #040E17;
-  --rv-navy-900:  #02070B;
+  /* ── Probid primary palette ─────────────────────────────────── */
+  --rv-primary:        #01AA85;   /* teal — Probid primary-color */
+  --rv-primary-dark:   #018c6d;
+  --rv-primary-light:  #e6f8ff;   /* category section bg */
+  --rv-primary-hover:  #019e7a;
 
-  /* ── Gold (Accent — prestige, winning, CTAs) ────────────────── */
+  /* ── Dark / text ─────────────────────────────────────────────── */
+  --rv-dark:           #0B0C0C;   /* Probid title-color */
+  --rv-dark-opc:       11, 12, 12;
+
+  /* ── Accent orange ───────────────────────────────────────────── */
+  --rv-orange:         #D8762D;   /* Probid primary-color3 */
+
+  /* ── Keep navy aliases for other pages that still use them ──── */
+  --rv-navy-50:   #e6f8ff;
+  --rv-navy-100:  #b3e8da;
+  --rv-navy-200:  #80d4c0;
+  --rv-navy-300:  #4dc0a6;
+  --rv-navy-400:  #1aac8c;
+  --rv-navy-500:  #01AA85;
+  --rv-navy-600:  #018c6d;
+  --rv-navy-700:  #016e55;
+  --rv-navy-800:  #014f3c;
+  --rv-navy-900:  #003124;
+
+  /* ── Gold kept for bid panel / existing detail pages ────────── */
   --rv-gold-50:   #FDF9EC;
   --rv-gold-100:  #F8EDCA;
   --rv-gold-200:  #F0D88C;
-  --rv-gold-300:  #D4AF77;   /* champagne gold — #D4AF77 */
+  --rv-gold-300:  #D4AF77;
   --rv-gold-400:  #CBAF40;
-  --rv-gold-500:  #C9A227;   /* primary gold — #C9A227 */
+  --rv-gold-500:  #C9A227;
   --rv-gold-600:  #A88620;
   --rv-gold-700:  #876A18;
   --rv-gold-800:  #664E11;
   --rv-gold-900:  #45330A;
+  --rv-gold:      #C9A227;
+  --rv-gold-light:#F8EDCA;
 
-  /* ── Semantic aliases ───────────────────────────────────────── */
-  --rv-primary:        var(--rv-navy-500);
-  --rv-primary-dark:   var(--rv-navy-700);
-  --rv-primary-light:  var(--rv-navy-50);
-  --rv-primary-hover:  var(--rv-navy-600);
-  --rv-gold:           var(--rv-gold-500);
-  --rv-gold-light:     var(--rv-gold-100);
-
-  /* Keep --rv-sky-* as aliases so all existing rules resolve */
+  /* ── sky aliases ─────────────────────────────────────────────── */
   --rv-sky-50:   var(--rv-navy-50);
   --rv-sky-100:  var(--rv-navy-100);
   --rv-sky-200:  var(--rv-navy-200);
@@ -50,30 +57,30 @@
   --rv-sky-900:  var(--rv-navy-900);
 
   /* ── Status ─────────────────────────────────────────────────── */
-  --rv-success:    #006D5B;   /* Emerald */
-  --rv-warning:    #B45309;
-  --rv-danger:     #dc2626;
-  --rv-burgundy:   #5C2B2B;   /* Sold / Void */
-  --rv-info:       var(--rv-navy-500);
+  --rv-success:    #01AA85;
+  --rv-warning:    #D8762D;
+  --rv-danger:     #B90101;
+  --rv-burgundy:   #5C2B2B;
+  --rv-info:       #2453D4;
 
   /* ── Neutrals ───────────────────────────────────────────────── */
   --rv-white:       #ffffff;
-  --rv-ivory:       #FAF9F6;   /* page background */
-  --rv-cream:       #F5F0E6;   /* card / section tint */
-  --rv-gray-50:     #F8F5F0;   /* warm off-white */
-  --rv-gray-100:    #EEE9E1;
-  --rv-gray-200:    #E5E7EB;   /* borders, dividers */
+  --rv-ivory:       #ffffff;   /* body bg = white like Probid */
+  --rv-cream:       #FFF6EC;   /* process card bg */
+  --rv-gray-50:     #f8f9fa;
+  --rv-gray-100:    #EEEEEE;
+  --rv-gray-200:    #E6E6E6;   /* Probid border-color */
   --rv-gray-300:    #D1D5DB;
   --rv-gray-400:    #9CA3AF;
-  --rv-gray-500:    #6B7280;
+  --rv-gray-500:    #5E5E5E;   /* Probid paragraph-color2 */
   --rv-gray-600:    #4B5563;
   --rv-gray-700:    #374151;
-  --rv-gray-800:    #1F2937;   /* primary text — deep charcoal */
-  --rv-gray-900:    #111111;   /* high-contrast text */
+  --rv-gray-800:    #23291F;   /* Probid paragraph-color base */
+  --rv-gray-900:    #0B0C0C;   /* Probid title-color */
 
   /* ── Typography ─────────────────────────────────────────────── */
-  --rv-font-display: 'Arial', sans-serif;
-  --rv-font-body:    'Arial', sans-serif;
+  --rv-font-display: 'Playfair Display', Georgia, serif;
+  --rv-font-body:    'DM Sans', sans-serif;
 
   --rv-text-xs:   0.75rem;
   --rv-text-sm:   0.875rem;
@@ -132,19 +139,118 @@ a:hover { color: var(--rv-primary-hover); }
 
 img { max-width: 100%; display: block; }
 
-/* ── 3. Navbar ──────────────────────────────────────────────── */
+/* ── Topbar (above navbar) ──────────────────────────────────── */
+.rv-topbar {
+  background: #fff;
+  border-bottom: 1px solid #EEEEEE;
+  padding: 9px 0;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.rv-topbar__wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.rv-topbar__contact {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.rv-topbar__contact li {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: .8125rem;
+  color: #5E5E5E;
+}
+
+.rv-topbar__contact li i {
+  color: #0B0C0C;
+  font-size: .95rem;
+}
+
+.rv-topbar__contact a {
+  color: #5E5E5E;
+  text-decoration: none;
+  transition: color .2s;
+}
+
+.rv-topbar__contact a:hover { color: #01AA85; }
+
+.rv-topbar__divider {
+  width: 1px;
+  height: 18px;
+  background: #E6E6E6;
+  flex-shrink: 0;
+}
+
+.rv-topbar__right {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+}
+
+/* Outlined pill buttons: HOW TO BID, SELL YOUR ITEM */
+.rv-topbar__btn {
+  display: inline-flex;
+  align-items: center;
+  border: 1.5px solid #E6E6E6;
+  border-radius: 50px;
+  padding: .28rem 1rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .72rem;
+  font-weight: 700;
+  color: #0B0C0C;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  transition: border-color .2s, color .2s;
+  white-space: nowrap;
+}
+
+.rv-topbar__btn:hover { border-color: #01AA85; color: #01AA85; }
+
+.rv-topbar__lang {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  font-size: .8125rem;
+  font-weight: 500;
+  color: #0B0C0C;
+  cursor: pointer;
+  transition: color .2s;
+}
+
+.rv-topbar__lang:hover { color: #01AA85; }
+
+@media (max-width: 767.98px) {
+  .rv-topbar { display: none; }
+}
+
+/* ── 3. Navbar (Probid: white bg, dark text, teal hover) ────── */
 .rv-navbar {
-  background: var(--rv-navy-500);
-  border-bottom: 1px solid var(--rv-navy-600);
-  height: var(--rv-navbar-height);
-  box-shadow: 0 2px 12px rgba(0,0,0,.20);
+  background: #ffffff;
+  border-bottom: 1px solid #EEEEEE;
+  height: auto;
+  min-height: 72px;
+  box-shadow: 0 2px 16px rgba(0,0,0,.06);
   z-index: 1000;
+  padding: 0;
 }
 
 .rv-brand {
   display: flex;
   align-items: center;
   text-decoration: none;
+  flex: 0 0 200px;   /* matches topbar contact-to-divider width */
 }
 
 .rv-brand__logo {
@@ -169,34 +275,33 @@ img { max-width: 100%; display: block; }
 .rv-navbar .nav-link {
   font-size: var(--rv-text-sm);
   font-weight: 500;
-  color: rgba(255,255,255,.80);
-  padding: 6px 12px;
+  color: var(--rv-dark);
+  padding: 6px 14px;
   border-radius: var(--rv-radius-sm);
-  transition: color .2s, background .2s;
+  transition: color .2s;
 }
 
 .rv-navbar .nav-link:hover,
 .rv-navbar .nav-link.active {
-  color: var(--rv-gold-300);
-  background: rgba(255,255,255,.08);
+  color: var(--rv-primary);
+  background: transparent;
 }
 
 .rv-toggler {
-  border: 1px solid rgba(255,255,255,.25);
+  border: 1px solid var(--rv-gray-200);
   padding: 6px 10px;
   border-radius: var(--rv-radius-sm);
-  filter: invert(1);
 }
 
 .rv-avatar {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: var(--rv-radius-pill);
-  background: linear-gradient(135deg, var(--rv-gold-400), var(--rv-gold-600));
-  color: var(--rv-navy-500);
+  background: var(--rv-primary);
+  color: #fff;
   font-weight: 700;
   font-size: var(--rv-text-sm);
   font-family: var(--rv-font-display);
@@ -205,11 +310,93 @@ img { max-width: 100%; display: block; }
 .rv-username {
   font-size: var(--rv-text-sm);
   font-weight: 500;
-  color: rgba(255,255,255,.85);
+  color: var(--rv-dark);
   margin-left: 6px;
 }
 
 .rv-user-menu { display: flex; align-items: center; }
+
+/* ── Nav caret icon ─────────────────────────────────────────── */
+.rv-nav-caret {
+  font-size: .65rem;
+  vertical-align: middle;
+  margin-left: 1px;
+}
+
+/* ── Navbar search bar ──────────────────────────────────────── */
+.rv-nav-search {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #E6E6E6;
+  border-radius: 5px;
+  overflow: hidden;
+  height: 44px;
+  transition: border-color .2s;
+}
+
+.rv-nav-search:focus-within {
+  border-color: #01AA85;
+}
+
+.rv-nav-search__input {
+  border: none;
+  outline: none;
+  padding: 0 .9rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .9rem;
+  color: #0B0C0C;
+  width: 200px;
+  background: transparent;
+  height: 100%;
+}
+
+.rv-nav-search__input::placeholder { color: #9CA3AF; }
+
+.rv-nav-search__btn {
+  background: #01AA85;
+  color: #fff;
+  border: none;
+  width: 44px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background .2s;
+  flex-shrink: 0;
+}
+
+.rv-nav-search__btn:hover { background: #0B0C0C; }
+
+/* ── My Account button ──────────────────────────────────────── */
+.rv-my-account-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  background: #0B0C0C;
+  color: #fff !important;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .9rem;
+  font-weight: 600;
+  padding: .58rem 1.15rem;
+  border-radius: 5px;
+  text-decoration: none !important;
+  transition: background .2s;
+  white-space: nowrap;
+  border: none;
+  cursor: pointer;
+}
+
+.rv-my-account-btn:hover { background: #01AA85; }
+
+/* remove Bootstrap dropdown-toggle arrow */
+.rv-my-account-btn.dropdown-toggle::after { display: none; }
+
+@media (max-width: 991.98px) {
+  .rv-nav-right { margin-top: .75rem; padding-bottom: .75rem; }
+  .rv-nav-search__input { width: 150px; }
+}
 
 .rv-dropdown {
   border: 1px solid var(--rv-gray-200);
@@ -247,27 +434,25 @@ img { max-width: 100%; display: block; }
 
 /* ── 4. Buttons ─────────────────────────────────────────────── */
 .rv-btn-primary {
-  background: linear-gradient(135deg, var(--rv-navy-500), var(--rv-navy-700));
-  color: var(--rv-white) !important;
+  background: var(--rv-primary);
+  color: #ffffff !important;
   border: none;
   border-radius: var(--rv-radius-sm);
   font-weight: 600;
   font-size: var(--rv-text-sm);
   padding: 9px 20px;
-  transition: opacity .2s, transform .1s, box-shadow .2s;
-  box-shadow: 0 2px 8px rgba(10,37,64,.22);
+  transition: background .2s, transform .1s;
 }
 
 .rv-btn-primary:hover {
-  opacity: .92;
+  background: var(--rv-dark);
   transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(10,37,64,.28);
 }
 
 .rv-btn-outline {
   background: transparent;
-  color: var(--rv-navy-500) !important;
-  border: 1.5px solid var(--rv-navy-300);
+  color: var(--rv-dark) !important;
+  border: 1.5px solid var(--rv-gray-200);
   border-radius: var(--rv-radius-sm);
   font-weight: 600;
   font-size: var(--rv-text-sm);
@@ -276,8 +461,9 @@ img { max-width: 100%; display: block; }
 }
 
 .rv-btn-outline:hover {
-  background: var(--rv-navy-50);
-  border-color: var(--rv-navy-500);
+  background: var(--rv-primary);
+  color: #fff !important;
+  border-color: var(--rv-primary);
 }
 
 .rv-btn-bid {
@@ -1514,54 +1700,55 @@ img { max-width: 100%; display: block; }
 /* ── 18. Bid History ────────────────────────────────────────── */
 .rv-bid-history { border-radius: var(--rv-radius-lg); overflow: hidden; box-shadow: var(--rv-shadow-sm); }
 
-/* ── 19. Footer ─────────────────────────────────────────────── */
+/* ── 19. Footer (Probid: #d4d6ed lavender, dark text) ────────── */
 .rv-footer {
-  background: var(--rv-navy-800);
-  color: rgba(255,255,255,.7);
+  background: #d4d6ed;
+  color: rgba(var(--rv-dark-opc), 0.7);
 }
-
 
 .rv-footer__tagline {
   font-size: var(--rv-text-sm);
-  color: rgba(255,255,255,.5);
+  color: rgba(var(--rv-dark-opc), 0.6);
   max-width: 280px;
 }
 
 .rv-footer__heading {
-  font-size: var(--rv-text-xs);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: rgba(255,255,255,.4);
-  margin-bottom: 14px;
+  font-size: var(--rv-text-sm);
   font-weight: 700;
-  font-family: var(--rv-font-display);
+  color: var(--rv-dark);
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid;
+  border-image: linear-gradient(90deg, var(--rv-dark) 0.01%, rgba(11,12,12,0) 102.8%) 1;
+  font-family: var(--rv-font-body);
+  text-transform: uppercase;
+  letter-spacing: .06em;
 }
 
-.rv-footer__links { }
-.rv-footer__links li { margin-bottom: 8px; }
+.rv-footer__links li { margin-bottom: 9px; }
 .rv-footer__links a {
-  color: rgba(255,255,255,.65);
+  color: rgba(11,12,12,0.62);
   font-size: var(--rv-text-sm);
   transition: color .2s;
 }
 
-.rv-footer__links a:hover { color: var(--rv-gold-300); }
+.rv-footer__links a:hover { color: var(--rv-primary); }
 
-.rv-footer__steps { display: flex; flex-direction: column; gap: 8px; }
+.rv-footer__steps { display: flex; flex-direction: column; gap: 9px; }
 
 .rv-footer__step {
   display: flex;
   align-items: center;
   gap: 10px;
   font-size: var(--rv-text-sm);
-  color: rgba(255,255,255,.65);
+  color: rgba(11,12,12,0.65);
 }
 
 .rv-footer__step span {
   width: 22px;
   height: 22px;
   border-radius: var(--rv-radius-pill);
-  background: var(--rv-gold-700);
+  background: var(--rv-primary);
   color: white;
   font-size: var(--rv-text-xs);
   font-weight: 700;
@@ -1572,15 +1759,25 @@ img { max-width: 100%; display: block; }
 }
 
 .rv-footer__bottom {
-  border-top: 1px solid rgba(255,255,255,.08);
+  border-top: 1px solid rgba(11,12,12,.12);
   padding: 20px 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: var(--rv-text-xs);
-  color: rgba(255,255,255,.35);
+  color: rgba(11,12,12,.5);
   flex-wrap: wrap;
   gap: 8px;
+}
+
+/* ── WhatsApp nav link ──────────────────────────────────────── */
+.rv-whatsapp-link {
+  color: #0B0C0C !important;
+  font-weight: 500;
+}
+
+.rv-whatsapp-link:hover {
+  color: #01AA85 !important;
 }
 
 /* ── 20. Pagination ─────────────────────────────────────────── */
@@ -1595,15 +1792,15 @@ img { max-width: 100%; display: block; }
 }
 
 .rv-pagination .page-link:hover {
-  background: var(--rv-navy-50);
-  border-color: var(--rv-navy-400);
-  color: var(--rv-navy-500);
+  background: #e6f8ff;
+  border-color: #01AA85;
+  color: #01AA85;
 }
 
 .rv-pagination .page-item.active .page-link {
-  background: var(--rv-navy-500);
-  border-color: var(--rv-navy-500);
-  color: white;
+  background: #01AA85;
+  border-color: #01AA85;
+  color: #fff;
 }
 
 /* ── 21. Responsive ─────────────────────────────────────────── */

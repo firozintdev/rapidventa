@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}How to Bid{% endblock %}
+{% block meta_description %}Learn how to place winning bids on RapidVenta. Follow our simple step-by-step guide to register, find items, and bid with confidence.{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/how_to.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Breadcrumb Banner ──────────────────────────────────── -->
+<div class="ht-breadcrumb">
+  <div class="container">
+    <div class="ht-breadcrumb__content">
+      <h1>How to Bid</h1>
+      <ul class="ht-breadcrumb__list">
+        <li><a href="{% url 'listings:list' %}">Home</a></li>
+        <li>How to Bid</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── Steps Section ─────────────────────────────────────── -->
+<div class="ht-section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+
+        <div class="ht-steps-wrap">
+
+          <!-- Step 1 — left -->
+          <div class="row mb-4 ht-step-row ht-step-row--left align-items-center">
+            <div class="col-md-5">
+              <div class="ht-step">
+                <span class="ht-step__label">Step-01</span>
+                <h2>Create Your Account</h2>
+                <p>Sign up for a free RapidVenta account. Provide your name, email address, and a secure password. Once registered, our admin team will validate your account before you can start bidding.</p>
+                <div class="ht-step__arrow"><i class="bi bi-person-plus-fill"></i></div>
+              </div>
+            </div>
+            <div class="col-md-2 d-none d-md-flex justify-content-center">
+              <div class="ht-step-dot"></div>
+            </div>
+            <div class="col-md-5"></div>
+          </div>
+
+          <!-- Step 2 — right -->
+          <div class="row mb-4 ht-step-row ht-step-row--right align-items-center">
+            <div class="col-md-5"></div>
+            <div class="col-md-2 d-none d-md-flex justify-content-center">
+              <div class="ht-step-dot"></div>
+            </div>
+            <div class="col-md-5">
+              <div class="ht-step">
+                <span class="ht-step__label">Step-02</span>
+                <h2>Browse Auctions</h2>
+                <p>Explore our live auction listings. Use the search bar or filter by category, price, or closing time to find exactly what you're looking for. Each listing shows the current bid and time remaining.</p>
+                <div class="ht-step__arrow"><i class="bi bi-search"></i></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3 — left -->
+          <div class="row mb-4 ht-step-row ht-step-row--left align-items-center">
+            <div class="col-md-5">
+              <div class="ht-step">
+                <span class="ht-step__label">Step-03</span>
+                <h2>Place Your Bid</h2>
+                <p>Open any auction listing and enter your bid amount — it must be higher than the current price. Watch the live countdown timer. If your bid is the highest when the auction ends, you win!</p>
+                <div class="ht-step__arrow"><i class="bi bi-hammer"></i></div>
+              </div>
+            </div>
+            <div class="col-md-2 d-none d-md-flex justify-content-center">
+              <div class="ht-step-dot"></div>
+            </div>
+            <div class="col-md-5"></div>
+          </div>
+
+          <!-- Step 4 — right -->
+          <div class="row mb-4 ht-step-row ht-step-row--right align-items-center">
+            <div class="col-md-5"></div>
+            <div class="col-md-2 d-none d-md-flex justify-content-center">
+              <div class="ht-step-dot"></div>
+            </div>
+            <div class="col-md-5">
+              <div class="ht-step">
+                <span class="ht-step__label">Step-04</span>
+                <h2>Win &amp; Complete Payment</h2>
+                <p>If you win, you'll receive a notification immediately. Head to your dashboard to confirm the order and complete secure payment. Our team coordinates delivery once payment is confirmed.</p>
+                <div class="ht-step__arrow"><i class="bi bi-bag-check-fill"></i></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 5 — left -->
+          <div class="row ht-step-row ht-step-row--left align-items-center">
+            <div class="col-md-5">
+              <div class="ht-step">
+                <span class="ht-step__label">Step-05</span>
+                <h2>Track Your Orders</h2>
+                <p>After payment, track your purchase from your personal dashboard under "My Orders". Our support team is available via WhatsApp if you have any questions during delivery.</p>
+                <div class="ht-step__arrow"><i class="bi bi-box-seam-fill"></i></div>
+              </div>
+            </div>
+            <div class="col-md-2 d-none d-md-flex justify-content-center">
+              <div class="ht-step-dot"></div>
+            </div>
+            <div class="col-md-5"></div>
+          </div>
+
+        </div>
+
+        <!-- Guidelines cards -->
+        <div class="ht-guidelines">
+          <h2>Bidding <span>Guidelines</span></h2>
+          <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+              <div class="ht-guide-card">
+                <div class="ht-guide-card__icon"><i class="bi bi-shield-check"></i></div>
+                <h5>Bid Responsibly</h5>
+                <p>Only bid what you are prepared to pay. All winning bids are binding and must be completed within the payment window.</p>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+              <div class="ht-guide-card">
+                <div class="ht-guide-card__icon"><i class="bi bi-clock"></i></div>
+                <h5>Watch the Countdown</h5>
+                <p>Each auction runs until the timer hits zero. Monitor listings closely — last-second bids are common in competitive auctions.</p>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+              <div class="ht-guide-card">
+                <div class="ht-guide-card__icon"><i class="bi bi-bell"></i></div>
+                <h5>Use Your Watchlist</h5>
+                <p>Add items to your Watchlist to track them easily. You'll have quick access to all items you're interested in from your dashboard.</p>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+              <div class="ht-guide-card">
+                <div class="ht-guide-card__icon"><i class="bi bi-credit-card"></i></div>
+                <h5>Secure Payments</h5>
+                <p>All payments are processed securely. We support major payment methods and your financial data is always protected.</p>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+              <div class="ht-guide-card">
+                <div class="ht-guide-card__icon"><i class="bi bi-person-check"></i></div>
+                <h5>Verified Sellers</h5>
+                <p>Every seller on RapidVenta is verified by our admin team. Buy with confidence knowing every listing meets our quality standards.</p>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+              <div class="ht-guide-card">
+                <div class="ht-guide-card__icon"><i class="bi bi-headset"></i></div>
+                <h5>24/7 Support</h5>
+                <p>Got a question? Our support team is available via WhatsApp around the clock to help you with any issue during the bidding process.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="ht-cta">
+          <div class="ht-cta__text">
+            <h3>Ready to Place Your First Bid?</h3>
+            <p>Browse hundreds of live auctions and start winning today.</p>
+          </div>
+          <a href="{% url 'listings:auction_grid' %}" class="ht-cta__btn">
+            Browse Auctions <i class="bi bi-arrow-right"></i>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── Footer Top Banners ─────────────────────────────────── -->
+<div class="home1-footer-top-area">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="footer-top-banner">
+          <div class="banner-content">
+            <span>Currently viewing</span>
+            <h2><a href="{% url 'core:how_to_bid' %}">How to bid your item</a></h2>
+          </div>
+          <a href="{% url 'core:how_to_bid' %}" class="arrow"><i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="footer-top-banner two">
+          <div class="banner-content">
+            <span>Also see</span>
+            <h2><a href="{% url 'core:how_to_sell' %}">How to sell your item</a></h2>
+          </div>
+          <a href="{% url 'core:how_to_sell' %}" class="arrow"><i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

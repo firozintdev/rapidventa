@@ -5,6 +5,7 @@ app_name = "listings"
 
 urlpatterns = [
     path("", views.ListingListView.as_view(), name="list"),
+    path("auctions/", views.AuctionGridView.as_view(), name="auction_grid"),
     path("listing/<int:pk>/", views.ListingDetailView.as_view(), name="detail"),
     path("listing/<int:pk>/review/", views.ReviewCreateView.as_view(), name="review"),
     path("listing/<int:pk>/buy-now/", views.BuyNowView.as_view(), name="buy_now"),

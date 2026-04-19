@@ -72,6 +72,46 @@ class ListingListView(View):
         )
 
 
+class AuctionGridView(View):
+    """Dedicated auction grid page with sidebar filters."""
+
+    template_name = "listings/auction_grid.html"
+    paginate_by = 12
+
+    def get(self, request):
+        form = ListingFilterForm(request.GET or None)
+        category_slug = None
+        order_by = "end_time"
+        search_query = ""
+
+        if form.is_valid():
+            category = form.cleaned_data.get("category")
+            category_slug = category.slug if category else None
+            order_by = form.cleaned_data.get("order_by") or "end_time"
+            search_query = form.cleaned_data.get("q", "")
+
+        listings_qs = get_active_listings(
+            category_slug=category_slug, order_by=order_by
+        )
+
+        if search_query:
+            listings_qs = listings_qs.filter(title__icontains=search_query)
+
+        paginator = Paginator(listings_qs, self.paginate_by)
+        page_obj = paginator.get_page(request.GET.get("page"))
+
+        return render(
+            request,
+            self.template_name,
+            {
+                "page_obj": page_obj,
+                "filter_form": form,
+                "categories": get_all_categories(),
+                "total_count": paginator.count,
+            },
+        )
+
+
 class ListingDetailView(View):
     """Auction detail page with bid history, tabs and reviews."""
 
@@ -93,6 +133,10 @@ class ListingDetailView(View):
             request.user.is_authenticated
             and Watchlist.objects.filter(user=request.user, listing=listing).exists()
         )
+        related = (
+            get_active_listings(category_slug=listing.category.slug)
+            .exclude(pk=listing.pk)[:8]
+        )
         return render(
             request,
             self.template_name,
@@ -103,6 +147,7 @@ class ListingDetailView(View):
                 "review_form": ReviewForm(),
                 "user_reviewed": user_reviewed,
                 "is_watching": is_watching,
+                "related": related,
             },
         )
 

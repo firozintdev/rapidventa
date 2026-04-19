@@ -1,10 +1,46 @@
 {% load static %}
+
+<!-- ── TOPBAR ──────────────────────────────────────────────── -->
+<div class="rv-topbar">
+  <div class="container">
+    <div class="rv-topbar__wrap">
+
+      <!-- Left: contact info -->
+      <ul class="rv-topbar__contact">
+        <li>
+          <i class="bi bi-envelope"></i>
+          <a href="mailto:info@rapidventa.com">info@rapidventa.com</a>
+        </li>
+        <li class="rv-topbar__divider"></li>
+        <li>
+          <i class="bi bi-headset"></i>
+          <a href="https://wa.me/+584122392711" target="_blank" rel="noopener noreferrer">
+            Customer support
+          </a>
+        </li>
+      </ul>
+
+      <!-- Right: action buttons + language -->
+      <div class="rv-topbar__right">
+        <a href="{% url 'core:how_to_bid' %}" class="rv-topbar__btn">HOW TO BID</a>
+        <a href="{% url 'core:how_to_sell' %}" class="rv-topbar__btn">SELL YOUR ITEM</a>
+        <div class="rv-topbar__lang">
+          <i class="bi bi-translate"></i>
+          <span>Language</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── MAIN NAVBAR ─────────────────────────────────────────── -->
 <nav class="rv-navbar navbar navbar-expand-lg sticky-top">
   <div class="container">
 
-    <!-- Brand -->
+    <!-- Logo -->
     <a class="navbar-brand rv-brand" href="{% url 'listings:list' %}">
-      <img src="{% static 'images/logo-nav-light.png' %}" alt="RapidVenta" class="rv-brand__logo" />
+      <img src="{% static 'images/logo-nav.png' %}" alt="RapidVenta" class="rv-brand__logo" />
     </a>
 
     <!-- Mobile toggle -->
@@ -15,34 +51,42 @@
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <!-- Nav links -->
     <div class="collapse navbar-collapse" id="navbarMain">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+      <!-- Center nav links -->
+      <ul class="navbar-nav ms-5 me-auto mb-2 mb-lg-0">
+
         <li class="nav-item">
           <a class="nav-link {% if request.resolver_match.url_name == 'list' %}active{% endif %}"
              href="{% url 'listings:list' %}">
-            <i class="bi bi-grid-3x3-gap me-1"></i>Auctions
+            Home <i class="bi bi-chevron-down rv-nav-caret"></i>
           </a>
         </li>
-        {% if user.is_authenticated and user.is_seller %}
+
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-            <i class="bi bi-shop me-1"></i>Sell
+            Auctions
           </a>
           <ul class="dropdown-menu rv-dropdown">
             <li>
-              <a class="dropdown-item" href="{% url 'listings:create' %}">
-                <i class="bi bi-plus-circle me-2"></i>New Listing
+              <a class="dropdown-item" href="{% url 'listings:list' %}">
+                <i class="bi bi-grid-3x3-gap me-2"></i>All Auctions
               </a>
             </li>
+            {% if user.is_authenticated and user.is_seller %}
             <li>
               <a class="dropdown-item" href="{% url 'listings:my_listings' %}">
                 <i class="bi bi-list-ul me-2"></i>My Listings
               </a>
             </li>
             <li>
+              <a class="dropdown-item" href="{% url 'listings:create' %}">
+                <i class="bi bi-plus-circle me-2"></i>Create Listing
+              </a>
+            </li>
+            <li>
               <a class="dropdown-item" href="{% url 'listings:upload_csv' %}">
-                <i class="bi bi-upload me-2"></i>Bulk Upload CSV
+                <i class="bi bi-upload me-2"></i>Bulk Upload
               </a>
             </li>
             <li>
@@ -50,105 +94,148 @@
                 <i class="bi bi-bar-chart-line me-2"></i>Analytics
               </a>
             </li>
+            {% endif %}
           </ul>
         </li>
-        {% endif %}
+
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+            Pages
+          </a>
+          <ul class="dropdown-menu rv-dropdown">
+            {% if user.is_authenticated %}
+            <li>
+              <a class="dropdown-item" href="{% url 'accounts:dashboard' %}">
+                <i class="bi bi-speedometer2 me-2"></i>Dashboard
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="{% url 'accounts:profile' %}">
+                <i class="bi bi-person-gear me-2"></i>Profile
+              </a>
+            </li>
+            {% if user.is_buyer %}
+            <li>
+              <a class="dropdown-item" href="{% url 'listings:watchlist' %}">
+                <i class="bi bi-bookmark-heart me-2"></i>Watchlist
+              </a>
+            </li>
+            {% endif %}
+            <li>
+              <a class="dropdown-item" href="{% url 'accounts:auction_history' %}">
+                <i class="bi bi-clock-history me-2"></i>Bid History
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="{% url 'orders:list' %}">
+                <i class="bi bi-bag-check me-2"></i>My Orders
+              </a>
+            </li>
+            {% if user.is_staff %}
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item" style="color:#01AA85;"
+                 href="{% url 'core:admin_dashboard' %}">
+                <i class="bi bi-speedometer me-2"></i>Platform Dashboard
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" style="color:#01AA85;"
+                 href="{% url 'admin:index' %}">
+                <i class="bi bi-shield-lock me-2"></i>Admin Panel
+              </a>
+            </li>
+            {% endif %}
+            {% else %}
+            <li>
+              <a class="dropdown-item" href="{% url 'accounts:login' %}">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Log In
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="{% url 'accounts:register' %}">
+                <i class="bi bi-person-plus me-2"></i>Register
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}"
+             href="{% url 'core:contact' %}">
+            Contact
+          </a>
+        </li>
+
       </ul>
 
-      <!-- Right side -->
-      <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
-          <!-- WhatsApp -->
-          <li class="nav-item">
-            <a class="nav-link rv-whatsapp-link" href="https://wa.me/+584122392711" target="_blank" rel="noopener noreferrer"
-               title="WhatsApp">
-              <i class="bi bi-whatsapp"></i>
-              WhatsApp
-            </a>
-          </li>
+      <!-- Right: search + account -->
+      <div class="rv-nav-right d-flex align-items-center gap-2">
 
+        <!-- Search form -->
+        <form class="rv-nav-search" action="{% url 'listings:list' %}" method="get">
+          <input type="text" name="q" class="rv-nav-search__input"
+                 placeholder="Search your product..."
+                 autocomplete="off">
+          <button type="submit" class="rv-nav-search__btn">
+            <i class="bi bi-search"></i>
+          </button>
+        </form>
+
+        <!-- My Account button -->
         {% if user.is_authenticated %}
-          <!-- Validation badge -->
-          {% if not user.is_validated_by_admin %}
-          <li class="nav-item">
-            <span class="rv-badge-pending">
-              <i class="bi bi-clock-history me-1"></i>Pending Validation
-            </span>
-          </li>
-          {% endif %}
-
-          <!-- User dropdown -->
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle rv-user-menu" href="#" data-bs-toggle="dropdown">
-              <span class="rv-avatar">{{ user.full_name|first|upper }}</span>
-              <span class="rv-username d-none d-lg-inline">{{ user.full_name|truncatechars:18 }}</span>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end rv-dropdown">
-              <li class="dropdown-header">
-                <small class="text-muted">{{ user.get_role_display }}</small>
-              </li>
-              <li><hr class="dropdown-divider"></li>
-              <li>
-                <a class="dropdown-item" href="{% url 'accounts:dashboard' %}">
-                  <i class="bi bi-speedometer2 me-2"></i>Dashboard
-                </a>
-              </li>
-              <li>
-                <a class="dropdown-item" href="{% url 'accounts:profile' %}">
-                  <i class="bi bi-person-gear me-2"></i>Profile
-                </a>
-              </li>
-              {% if user.is_buyer %}
-              <li>
-                <a class="dropdown-item" href="{% url 'listings:watchlist' %}">
-                  <i class="bi bi-bookmark-heart me-2"></i>Watchlist
-                </a>
-              </li>
-              {% endif %}
-              <li>
-                <a class="dropdown-item" href="{% url 'accounts:auction_history' %}">
-                  <i class="bi bi-clock-history me-2"></i>Bid History
-                </a>
-              </li>
-              <li>
-                <a class="dropdown-item" href="{% url 'orders:list' %}">
-                  <i class="bi bi-bag-check me-2"></i>My Orders
-                </a>
-              </li>
-              {% if user.is_staff %}
-              <li><hr class="dropdown-divider"></li>
-              <li>
-                <a class="dropdown-item text-primary" href="{% url 'core:admin_dashboard' %}">
-                  <i class="bi bi-speedometer me-2"></i>Platform Dashboard
-                </a>
-              </li>
-              <li>
-                <a class="dropdown-item text-primary" href="{% url 'admin:index' %}">
-                  <i class="bi bi-shield-lock me-2"></i>Admin Panel
-                </a>
-              </li>
-              {% endif %}
-              <li><hr class="dropdown-divider"></li>
-              <li>
-                <form method="post" action="{% url 'accounts:logout' %}">
-                  {% csrf_token %}
-                  <button type="submit" class="dropdown-item text-danger">
-                    <i class="bi bi-box-arrow-right me-2"></i>Log Out
-                  </button>
-                </form>
-              </li>
-            </ul>
-          </li>
+        <div class="dropdown">
+          <a href="#" class="rv-my-account-btn dropdown-toggle" data-bs-toggle="dropdown">
+            <i class="bi bi-person-fill"></i>
+            <span class="d-none d-xl-inline">{{ user.full_name|truncatechars:14 }}</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end rv-dropdown">
+            <li class="dropdown-header">
+              <small class="text-muted">{{ user.get_role_display }}</small>
+            </li>
+            {% if not user.is_validated_by_admin %}
+            <li>
+              <span class="dropdown-item-text" style="font-size:.8rem;color:#D8762D;">
+                <i class="bi bi-clock-history me-1"></i>Pending Validation
+              </span>
+            </li>
+            {% endif %}
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item" href="{% url 'accounts:dashboard' %}">
+                <i class="bi bi-speedometer2 me-2"></i>Dashboard
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="{% url 'accounts:profile' %}">
+                <i class="bi bi-person-gear me-2"></i>Profile
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="{% url 'orders:list' %}">
+                <i class="bi bi-bag-check me-2"></i>My Orders
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <form method="post" action="{% url 'accounts:logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="dropdown-item text-danger">
+                  <i class="bi bi-box-arrow-right me-2"></i>Log Out
+                </button>
+              </form>
+            </li>
+          </ul>
+        </div>
         {% else %}
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'accounts:login' %}">Log In</a>
-          </li>
-          <li class="nav-item">
-            <a class="btn rv-btn-primary btn-sm px-3" href="{% url 'accounts:register' %}">
-              Register
-            </a>
-          </li>
+        <a href="{% url 'accounts:login' %}" class="rv-my-account-btn">
+          <i class="bi bi-person-fill"></i>
+          <span class="d-none d-xl-inline">My Account</span>
+        </a>
         {% endif %}
-      </ul>
+
+      </div>
     </div>
 
   </div>

@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+{% load static humanize %}
+
+{% block title %}Auction Grid{% endblock %}
+{% block meta_description %}Browse all live auction lots at RapidVenta. Filter by category, price and sort order to find your perfect bid.{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auction_grid.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Breadcrumb Banner ──────────────────────────────────── -->
+<div class="ag-breadcrumb">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12 d-flex justify-content-center">
+        <div class="ag-breadcrumb__content">
+          <h1>Auction Grid</h1>
+          <ul class="ag-breadcrumb__list">
+            <li><a href="{% url 'listings:list' %}">Home</a></li>
+            <li>Auction Grid</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── Main: Sidebar + Grid ──────────────────────────────── -->
+<div class="ag-section">
+  <div class="container">
+    <form method="get" id="gridFilterForm">
+      <div class="row g-5">
+
+        <!-- ── LEFT SIDEBAR ──────────────────────────────── -->
+        <div class="col-lg-3">
+          <div class="ag-sidebar">
+
+            <!-- Search -->
+            <div class="ag-widget">
+              <div class="ag-search-box">
+                <input type="text" name="q" value="{{ filter_form.q.value|default:'' }}"
+                       placeholder="Search auctions…">
+                <button type="submit"><i class="bi bi-search"></i></button>
+              </div>
+            </div>
+
+            <!-- Category checkboxes -->
+            <div class="ag-widget">
+              <h5 class="ag-widget__title">Category</h5>
+              <div class="ag-checkbox-list">
+                <ul>
+                  <li>
+                    <label class="ag-check">
+                      <input type="radio" name="category" value=""
+                        {% if not filter_form.category.value %}checked{% endif %}>
+                      <span class="ag-check__mark"></span>
+                      <span>All Categories</span>
+                    </label>
+                  </li>
+                  {% for cat in categories %}
+                  <li>
+                    <label class="ag-check">
+                      <input type="radio" name="category" value="{{ cat.pk }}"
+                        {% if filter_form.category.value == cat.pk|stringformat:"s" %}checked{% endif %}>
+                      <span class="ag-check__mark"></span>
+                      <span>{{ cat.name }}</span>
+                    </label>
+                  </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+
+            <!-- Sort order -->
+            <div class="ag-widget">
+              <h5 class="ag-widget__title">Sort By</h5>
+              <div class="ag-checkbox-list">
+                <ul>
+                  {% for value, label in filter_form.fields.order_by.choices %}
+                  <li>
+                    <label class="ag-check">
+                      <input type="radio" name="order_by" value="{{ value }}"
+                        {% if filter_form.order_by.value == value or not filter_form.order_by.value and value == 'end_time' %}checked{% endif %}>
+                      <span class="ag-check__mark"></span>
+                      <span>{{ label }}</span>
+                    </label>
+                  </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+
+            <!-- Apply / Reset -->
+            <div class="ag-widget ag-widget--actions">
+              <button type="submit" class="ag-apply-btn">Apply Filters</button>
+              <a href="{% url 'listings:auction_grid' %}" class="ag-reset-btn">Reset</a>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ── MAIN GRID ──────────────────────────────────── -->
+        <div class="col-lg-9">
+
+          <!-- Results bar -->
+          <div class="ag-results-bar">
+            <h6>
+              Showing {{ page_obj.start_index }}–{{ page_obj.end_index }}
+              of {{ total_count }} result{{ total_count|pluralize }}
+            </h6>
+          </div>
+
+          <!-- Cards -->
+          {% if page_obj.object_list %}
+          <div class="row g-4 mb-60">
+            {% for listing in page_obj %}
+            <div class="col-xl-4 col-md-6">
+              <div class="auction-card">
+                <div class="auction-card-img-wrap">
+                  <a href="{{ listing.get_absolute_url }}" class="card-img">
+                    {% with primary=listing.primary_image %}
+                      {% if primary %}
+                        <img src="{{ primary.image.url }}" alt="{{ listing.title }}" loading="lazy">
+                      {% else %}
+                        <div class="card-img-placeholder"><i class="bi bi-hammer"></i></div>
+                      {% endif %}
+                    {% endwith %}
+                  </a>
+
+                  <div class="batch">
+                    <span class="live"><span class="dot"></span>Live</span>
+                  </div>
+
+                  <ul class="view-and-favorite-area">
+                    <li><a href="{{ listing.get_absolute_url }}" title="View"><i class="bi bi-eye"></i></a></li>
+                    <li><a href="#" title="Watchlist"><i class="bi bi-heart"></i></a></li>
+                  </ul>
+
+                  <div class="countdown-timer">
+                    <ul data-end="{{ listing.end_time|date:'c' }}" data-listing-id="{{ listing.pk }}">
+                      <li class="times" data-unit="days">00</li>
+                      <li class="colon">:</li>
+                      <li class="times" data-unit="hours">00</li>
+                      <li class="colon">:</li>
+                      <li class="times" data-unit="minutes">00</li>
+                      <li class="colon">:</li>
+                      <li class="times" data-unit="seconds">00</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="auction-card-content">
+                  <h6><a href="{{ listing.get_absolute_url }}">{{ listing.title|truncatechars:60 }}</a></h6>
+
+                  <div class="price-and-code-area">
+                    <div class="price">
+                      <span>Current Bid at:</span>
+                      <strong>${{ listing.current_price|floatformat:2|intcomma }}</strong>
+                    </div>
+                    <div class="code">
+                      <span>Lot # {{ listing.pk|stringformat:"08d" }}</span>
+                    </div>
+                  </div>
+
+                  <div class="author-and-btn-area">
+                    <a href="{{ listing.get_absolute_url }}" class="author-area">
+                      <div class="author-img">{{ listing.seller.full_name|first|upper }}</div>
+                      <div class="author-content">
+                        <h6>{{ listing.seller.full_name|truncatechars:16 }}</h6>
+                      </div>
+                    </a>
+                    <a href="{{ listing.get_absolute_url }}" class="bid-btn">Bid Now</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+          <!-- Pagination -->
+          <div class="d-flex justify-content-center">
+            {% include "components/pagination.html" %}
+          </div>
+
+          {% else %}
+          <div class="ag-empty">
+            <i class="bi bi-inbox"></i>
+            <h4>No Active Auctions</h4>
+            <p>Check back soon — new items are added regularly.</p>
+            <a href="{% url 'listings:auction_grid' %}" class="primary-btn mt-2">
+              <i class="bi bi-arrow-counterclockwise"></i> Clear Filters
+            </a>
+          </div>
+          {% endif %}
+
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/home.js' %}"></script>
+<script>
+  /* Auto-submit sidebar radios */
+  document.querySelectorAll('#gridFilterForm input[type="radio"]').forEach(function(r) {
+    r.addEventListener('change', function() {
+      document.getElementById('gridFilterForm').submit();
+    });
+  });
+</script>
+{% endblock %}

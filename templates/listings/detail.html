@@ -2,411 +2,448 @@
 {% load static humanize %}
 
 {% block title %}{{ listing.title }}{% endblock %}
+{% block meta_description %}{{ listing.description|truncatechars:160 }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/detail.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-  <div class="row g-5">
 
-    <!-- ── Left Column: Image + Description ──────────────────────────────── -->
-    <div class="col-lg-7">
-
-      <!-- Breadcrumb -->
-      <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb rv-breadcrumb">
-          <li class="breadcrumb-item"><a href="{% url 'listings:list' %}">Auctions</a></li>
-          <li class="breadcrumb-item"><a href="{% url 'listings:list' %}?category={{ listing.category.pk }}">{{ listing.category.name }}</a></li>
-          <li class="breadcrumb-item active">{{ listing.title|truncatechars:40 }}</li>
-        </ol>
-      </nav>
-
-      <!-- Images -->
-      <div class="rv-detail__image-wrap mb-4">
-        {% with images=listing.images.all %}
-        {% if images %}
-          {% if images|length == 1 %}
-            <img src="{{ images.0.image.url }}" alt="{{ listing.title }}" class="rv-detail__image">
-          {% else %}
-            <div id="listingCarousel" class="carousel slide" data-bs-ride="carousel">
-              <div class="carousel-indicators">
-                {% for img in images %}
-                <button type="button" data-bs-target="#listingCarousel"
-                        data-bs-slide-to="{{ forloop.counter0 }}"
-                        {% if forloop.first %}class="active" aria-current="true"{% endif %}
-                        aria-label="Image {{ forloop.counter }}"></button>
-                {% endfor %}
-              </div>
-              <div class="carousel-inner">
-                {% for img in images %}
-                <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                  <img src="{{ img.image.url }}" alt="{{ listing.title }} – photo {{ forloop.counter }}"
-                       class="rv-detail__image d-block w-100">
-                </div>
-                {% endfor %}
-              </div>
-              <button class="carousel-control-prev" type="button" data-bs-target="#listingCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-              </button>
-              <button class="carousel-control-next" type="button" data-bs-target="#listingCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-              </button>
-            </div>
-            <!-- Thumbnail strip -->
-            <div class="d-flex gap-2 mt-2 flex-wrap">
-              {% for img in images %}
-              <img src="{{ img.image.url }}" alt="thumb {{ forloop.counter }}"
-                   class="rv-detail__thumb{% if forloop.first %} rv-detail__thumb--active{% endif %}"
-                   data-bs-target="#listingCarousel" data-bs-slide-to="{{ forloop.counter0 }}"
-                   style="cursor:pointer; width:64px; height:64px; object-fit:cover; border-radius:6px; opacity:{% if forloop.first %}1{% else %}0.6{% endif %};">
-              {% endfor %}
-            </div>
-          {% endif %}
-        {% else %}
-          <div class="rv-detail__image-placeholder">
-            <i class="bi bi-image"></i>
-            <span>No image provided</span>
-          </div>
-        {% endif %}
-        {% endwith %}
-        <!-- Status ribbon -->
-        <span class="rv-detail__status-ribbon rv-status--{{ listing.status|lower }}">
-          {{ listing.get_status_display }}
-        </span>
-      </div>
-
-      <!-- Title & Seller -->
-      <div class="rv-detail__description">
-        <h1 class="rv-detail__title">{{ listing.title }}</h1>
-        <div class="rv-detail__seller-line">
-          <i class="bi bi-person-circle me-1"></i>
-          Listed by
-          <a href="{% url 'accounts:seller_profile' listing.seller.pk %}" class="rv-detail__seller-link">
-            <strong>{{ listing.seller.full_name }}</strong>
-          </a>
-          &nbsp;·&nbsp;
-          <span class="text-muted">{{ listing.category.name }}</span>
-        </div>
-      </div>
-
+<!-- ── Breadcrumb ─────────────────────────────────────────── -->
+<div class="ht-breadcrumb">
+  <div class="container">
+    <div class="ht-breadcrumb__content">
+      <h1>Auction Details</h1>
+      <ul class="ht-breadcrumb__list">
+        <li><a href="{% url 'listings:list' %}">Home</a></li>
+        <li><a href="{% url 'listings:auction_grid' %}">Auctions</a></li>
+        <li>{{ listing.title|truncatechars:40 }}</li>
+      </ul>
     </div>
+  </div>
+</div>
 
-    <!-- ── Right Column: Bid Panel ────────────────────────────────────────── -->
-    <div class="col-lg-5">
-      <div class="rv-bid-panel" id="bidPanel">
 
-        <!-- Timer -->
-        <div class="rv-bid-panel__timer" id="detailTimer"
-             data-end="{{ listing.end_time|date:'c' }}">
-          <div class="rv-timer-label">Time Remaining</div>
-          <div class="rv-timer-display" id="timerDisplay">—</div>
-          <div class="rv-timer-dates">
-            <span><i class="bi bi-play-circle me-1"></i>{{ listing.start_time|date:"M j, Y H:i" }}</span>
-            <span><i class="bi bi-stop-circle me-1"></i>{{ listing.end_time|date:"M j, Y H:i" }}</span>
-          </div>
-        </div>
+<!-- ── Main Detail Section ───────────────────────────────── -->
+<div class="ad-section">
+  <div class="container">
+    <div class="row g-lg-5 gy-4">
 
-        <!-- Price Summary -->
-        <div class="rv-bid-panel__prices">
-          <div class="rv-price-row">
-            <span class="rv-price-row__label">Starting Price</span>
-            <span class="rv-price-row__value">${{ listing.min_public_price|floatformat:2|intcomma }}</span>
-          </div>
-          <div class="rv-price-row rv-price-row--current">
-            <span class="rv-price-row__label">Current Highest Bid</span>
-            <span class="rv-price-row__value rv-price-row__value--highlight" id="currentBid">
-              ${{ listing.current_price|floatformat:2|intcomma }}
-            </span>
-          </div>
-          <div class="rv-price-row">
-            <span class="rv-price-row__label">Price Range</span>
-            <span class="rv-price-row__value rv-price-row__value--range">
-              ${{ listing.min_public_price|floatformat:0|intcomma }} – ${{ listing.max_public_price|floatformat:0|intcomma }}
-            </span>
-          </div>
-          <div class="rv-price-row">
-            <span class="rv-price-row__label">Total Bids</span>
-            <span class="rv-price-row__value"><strong>{{ listing.bids.count }}</strong></span>
-          </div>
-        </div>
+      <!-- ── LEFT: Image Gallery ────────────────────────── -->
+      <div class="col-lg-7 ad-col-gallery">
+        <div class="auction-details-img">
 
-        <!-- Bid Form -->
-        {% if listing.is_active %}
-          {% if user.is_authenticated %}
-            {% if user.can_bid %}
-              {% if user != listing.seller %}
-              <form method="post" action="{% url 'bids:place' listing.pk %}" class="rv-bid-form">
-                {% csrf_token %}
-                <label class="rv-label mb-1" for="id_amount">Your Bid Amount (USD)</label>
-                <div class="rv-bid-input-group">
-                  <span class="rv-bid-input-prefix">$</span>
-                  <input type="number" name="amount" id="id_amount"
-                         class="form-control rv-bid-input"
-                         step="0.01" min="0.01"
-                         placeholder="{{ listing.current_price|floatformat:2 }}"
-                         required>
+          {% with images=listing.images.all %}
+
+          <!-- Main image (tab panes) -->
+          <div class="ad-main-img">
+            <div class="tab-content" id="adImgTabContent">
+              {% if images %}
+                {% for img in images %}
+                <div class="tab-pane fade {% if forloop.first %}show active{% endif %}"
+                     id="adImg{{ forloop.counter }}" role="tabpanel">
+                  <img src="{{ img.image.url }}" alt="{{ listing.title }} – photo {{ forloop.counter }}">
                 </div>
-                <p class="rv-bid-hint">
-                  <i class="bi bi-info-circle me-1"></i>
-                  Minimum next bid: <strong>${{ listing.current_price|floatformat:2|intcomma }}</strong>
-                </p>
-                <button type="submit" class="btn rv-btn-bid w-100">
-                  <i class="bi bi-lightning-charge-fill me-2"></i>Place Bid
-                </button>
-              </form>
+                {% endfor %}
               {% else %}
-              <div class="rv-bid-panel__notice rv-bid-panel__notice--info">
-                <i class="bi bi-info-circle-fill me-2"></i>
-                You cannot bid on your own listing.
+                <div class="tab-pane fade show active" id="adImg1" role="tabpanel">
+                  <div class="ad-img-placeholder"><i class="bi bi-hammer"></i></div>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Thumbnails -->
+          {% if images|length > 1 %}
+          <div class="ad-thumbs" id="adThumbNav" role="tablist">
+            {% for img in images %}
+            <button class="ad-thumb-btn {% if forloop.first %}active{% endif %}"
+                    id="adThumbBtn{{ forloop.counter }}"
+                    data-bs-toggle="tab"
+                    data-bs-target="#adImg{{ forloop.counter }}"
+                    type="button" role="tab">
+              <img src="{{ img.image.url }}" alt="thumb {{ forloop.counter }}">
+            </button>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          {% endwith %}
+
+        </div><!-- /auction-details-img -->
+      </div><!-- /col-lg-7 gallery -->
+
+      <!-- ── RIGHT: Auction Info ────────────────────────── -->
+      <div class="col-lg-5 ad-col-info">
+        <div class="auction-details-content">
+
+          <!-- Badges -->
+          <div>
+            <span class="ad-lot-badge">Lot # {{ listing.pk|stringformat:"08d" }}</span>
+            {% if listing.is_active %}
+            <span class="ad-live-badge"><span class="dot"></span>Live</span>
+            {% endif %}
+          </div>
+
+          <!-- Title -->
+          <h1>{{ listing.title }}</h1>
+          <p>{{ listing.description|truncatechars:200 }}</p>
+
+          <!-- Current price -->
+          <div class="ad-price-area">
+            <span>Current Bid at:</span>
+            <strong>${{ listing.current_price|floatformat:2|intcomma }}</strong>
+          </div>
+
+          <!-- Meta chips -->
+          <div class="ad-meta">
+            <span class="ad-meta-chip">
+              <i class="bi bi-hammer"></i> {{ listing.bids.count }} Bid{{ listing.bids.count|pluralize }}
+            </span>
+            <span class="ad-meta-chip">
+              <i class="bi bi-tag"></i> {{ listing.category.name }}
+            </span>
+            <span class="ad-meta-chip">
+              <i class="bi bi-calendar3"></i> Ends {{ listing.end_time|date:"M j, Y" }}
+            </span>
+          </div>
+
+          <!-- Countdown -->
+          <div class="coundown-area">
+            <h6>Auction Will Be End:</h6>
+            <div class="countdown-timer">
+              <ul data-end="{{ listing.end_time|date:'c' }}">
+                <li class="times">
+                  <span class="num" data-unit="days">00</span>
+                  <span class="lbl">Days</span>
+                </li>
+                <li class="colon">:</li>
+                <li class="times">
+                  <span class="num" data-unit="hours">00</span>
+                  <span class="lbl">Hours</span>
+                </li>
+                <li class="colon">:</li>
+                <li class="times">
+                  <span class="num" data-unit="minutes">00</span>
+                  <span class="lbl">Mins</span>
+                </li>
+                <li class="colon">:</li>
+                <li class="times">
+                  <span class="num" data-unit="seconds">00</span>
+                  <span class="lbl">Secs</span>
+                </li>
+              </ul>
+            </div>
+            <span class="ad-end-date">
+              <strong>Ending On:</strong> {{ listing.end_time|date:"F j, Y g:i A" }}
+            </span>
+          </div>
+
+          <!-- Bid Form -->
+          {% if listing.is_active %}
+            {% if user.is_authenticated %}
+              {% if user.can_bid %}
+                {% if user != listing.seller %}
+                <div class="ad-bid-area">
+                  <h6>Your Max Bid:</h6>
+                  <form method="post" action="{% url 'bids:place' listing.pk %}">
+                    {% csrf_token %}
+                    <div class="ad-bid-input-row">
+                      <div class="ad-bid-input-wrap">
+                        <span class="ad-bid-prefix">$</span>
+                        <input type="number" name="amount" class="ad-bid-input"
+                               step="0.01" min="0.01"
+                               placeholder="{{ listing.current_price|floatformat:2 }}"
+                               required>
+                      </div>
+                      <button type="submit" class="ad-place-bid-btn">
+                        <i class="bi bi-lightning-charge-fill"></i>Place Bid
+                      </button>
+                    </div>
+                    <p class="ad-bid-hint">
+                      <i class="bi bi-info-circle me-1"></i>
+                      Minimum next bid: <strong>${{ listing.current_price|floatformat:2|intcomma }}</strong>
+                    </p>
+                  </form>
+                </div>
+                {% else %}
+                <div class="ad-notice ad-notice--info">
+                  <i class="bi bi-info-circle-fill"></i>
+                  <span>You cannot bid on your own listing.</span>
+                </div>
+                {% endif %}
+              {% else %}
+              <div class="ad-notice ad-notice--warning">
+                <i class="bi bi-shield-exclamation"></i>
+                <div><strong>Account Pending Validation</strong>
+                  <p class="mb-0 mt-1">An admin needs to approve your account before you can bid.</p>
+                </div>
               </div>
               {% endif %}
             {% else %}
-            <div class="rv-bid-panel__notice rv-bid-panel__notice--warning">
-              <i class="bi bi-shield-exclamation me-2"></i>
+            <div class="ad-notice ad-notice--cta">
               <div>
-                <strong>Account Pending Validation</strong>
-                <p class="mb-0 mt-1">An admin needs to approve your account before you can bid.</p>
+                <p class="mb-2"><i class="bi bi-lock me-1"></i>Sign in to place your bid</p>
+                <div class="d-flex gap-2">
+                  <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="ad-place-bid-btn" style="flex:1;justify-content:center;">Log In</a>
+                  <a href="{% url 'accounts:register' %}" class="ad-place-bid-btn" style="flex:1;justify-content:center;background:#0B0C0C;">Register</a>
+                </div>
               </div>
             </div>
             {% endif %}
           {% else %}
-          <div class="rv-bid-panel__notice rv-bid-panel__notice--cta">
-            <p><i class="bi bi-lock me-2"></i>Sign in to place your bid</p>
-            <div class="d-flex gap-2">
-              <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn rv-btn-primary flex-fill">Log In</a>
-              <a href="{% url 'accounts:register' %}" class="btn rv-btn-outline flex-fill">Register</a>
-            </div>
+          <div class="ad-notice ad-notice--closed">
+            <i class="bi bi-lock-fill"></i>
+            <span>This auction is <strong>{{ listing.get_status_display }}</strong>.</span>
           </div>
           {% endif %}
-        {% else %}
-        <div class="rv-bid-panel__notice rv-bid-panel__notice--closed">
-          <i class="bi bi-lock-fill me-2"></i>
-          This auction is <strong>{{ listing.get_status_display }}</strong>.
-        </div>
-        {% endif %}
 
-
-        <!-- Buy Now -->
-        {% if listing.is_buy_now_available %}
-        <div class="rv-bid-panel__section">
-          <div class="rv-buy-now-panel__header">
-            <span><i class="bi bi-bag-check-fill me-2"></i>Buy Now</span>
-            <span class="rv-buy-now-panel__price">${{ listing.buy_now_price|floatformat:2|intcomma }}</span>
-          </div>
-          <p class="rv-buy-now-panel__hint">Skip the auction — buy immediately at this fixed price.</p>
-          {% if user.is_authenticated %}
-            {% if user == listing.seller %}
-            <div class="rv-bid-panel__notice rv-bid-panel__notice--info">
-              <i class="bi bi-info-circle-fill me-2"></i>You cannot purchase your own listing.
+          <!-- Buy Now -->
+          {% if listing.is_buy_now_available %}
+          <div class="ad-buy-now">
+            <div class="ad-buy-now__header">
+              <span><i class="bi bi-bag-check-fill me-1"></i>Buy Now</span>
+              <span class="ad-buy-now__price">${{ listing.buy_now_price|floatformat:2|intcomma }}</span>
             </div>
-            {% elif user.can_bid %}
+            <p class="ad-buy-now__hint">Skip the auction — buy immediately at this fixed price.</p>
+            {% if user.is_authenticated and user != listing.seller and user.can_bid %}
             <form method="post" action="{% url 'listings:buy_now' listing.pk %}">
               {% csrf_token %}
-              <button type="submit" class="btn rv-btn-primary w-100">
-                <i class="bi bi-bag-check-fill me-2"></i>Buy Now for ${{ listing.buy_now_price|floatformat:2|intcomma }}
+              <button type="submit" class="ad-buy-now-btn">
+                <i class="bi bi-bag-check-fill"></i>Buy Now for ${{ listing.buy_now_price|floatformat:2|intcomma }}
               </button>
             </form>
-            {% else %}
-            <div class="rv-bid-panel__notice rv-bid-panel__notice--warning">
-              <i class="bi bi-shield-exclamation me-2"></i>
-              Account pending validation — Buy Now will be available once approved.
+            {% elif not user.is_authenticated %}
+            <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="ad-buy-now-btn">
+              <i class="bi bi-lock"></i>Log in to Buy Now
+            </a>
+            {% endif %}
+          </div>
+          {% endif %}
+
+          <!-- Action buttons -->
+          <div class="ad-actions">
+            {% if user.is_authenticated and user != listing.seller %}
+            <form method="post" action="{% url 'listings:toggle_watchlist' listing.pk %}" style="flex:1;">
+              {% csrf_token %}
+              <button type="submit" class="ad-action-btn w-100 {% if is_watching %}ad-action-btn--active{% endif %}">
+                <i class="bi bi-bookmark{% if is_watching %}-check-fill{% endif %}"></i>
+                {% if is_watching %}Watching{% else %}Add to Watchlist{% endif %}
+              </button>
+            </form>
+            {% elif not user.is_authenticated %}
+            <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="ad-action-btn" style="flex:1;">
+              <i class="bi bi-bookmark"></i>Watch Auction
+            </a>
+            {% endif %}
+            <a href="{% url 'core:contact' %}" class="ad-action-btn" style="flex:1;">
+              <i class="bi bi-chat-dots"></i>Ask a Question
+            </a>
+          </div>
+
+          <!-- Seller -->
+          <a href="{% url 'accounts:seller_profile' listing.seller.pk %}" class="ad-seller">
+            <div class="ad-seller__avatar">{{ listing.seller.full_name|first|upper }}</div>
+            <div>
+              <span class="ad-seller__name">{{ listing.seller.full_name }}</span>
+              <span class="ad-seller__label">Verified Seller</span>
             </div>
-            {% endif %}
-          {% else %}
-          <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn rv-btn-primary w-100">
-            <i class="bi bi-lock me-2"></i>Log in to Buy Now
+            <i class="bi bi-chevron-right ms-auto" style="color:#9CA3AF;"></i>
           </a>
-          {% endif %}
+
         </div>
-        {% endif %}
+      </div>
 
-        <!-- Watch / Unwatch -->
-        <div class="rv-bid-panel__section">
-          {% if user.is_authenticated and user != listing.seller %}
-          <form method="post" action="{% url 'listings:toggle_watchlist' listing.pk %}">
-            {% csrf_token %}
-            {% if is_watching %}
-            <button type="submit" class="btn w-100">
-              <i class="bi bi-bookmark-check-fill me-2"></i>Watching — Click to Unwatch
+      <!-- ── Tabs below gallery ────────────────────────── -->
+      <div class="col-lg-7 ad-col-tabs">
+        <div class="auction-details-description-area mt-4">
+      <div class="auction-details-description-nav">
+        <nav>
+          <div class="nav nav-tabs" id="adTabNav" role="tablist">
+            <button class="nav-link active" id="adTab-desc"
+                    data-bs-toggle="tab" data-bs-target="#adPane-desc"
+                    type="button" role="tab" aria-selected="true">
+              Description
             </button>
-            {% else %}
-            <button type="submit" class="btn w-100">
-              <i class="bi bi-bookmark me-2"></i>Watch this Auction
+            <button class="nav-link" id="adTab-info"
+                    data-bs-toggle="tab" data-bs-target="#adPane-info"
+                    type="button" role="tab" aria-selected="false">
+              Additional Information
             </button>
-            {% endif %}
-          </form>
-          {% elif not user.is_authenticated %}
-          <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn rv-btn-outline w-100">
-            <i class="bi bi-bookmark me-2"></i>Log in to Watch
-          </a>
-          {% endif %}
-        </div>
+            <button class="nav-link" id="adTab-bids"
+                    data-bs-toggle="tab" data-bs-target="#adPane-bids"
+                    type="button" role="tab" aria-selected="false">
+              Bid History
+              {% if bids %}<span class="badge ms-1" style="background:#01AA85;font-size:.7rem;">{{ listing.bids.count }}</span>{% endif %}
+            </button>
+            <button class="nav-link" id="adTab-reviews"
+                    data-bs-toggle="tab" data-bs-target="#adPane-reviews"
+                    type="button" role="tab" aria-selected="false">
+              Reviews
+              {% if reviews %}<span class="badge ms-1" style="background:#01AA85;font-size:.7rem;">{{ reviews|length }}</span>{% endif %}
+            </button>
+          </div>
+        </nav>
+      </div>
 
-      </div>{# /rv-bid-panel #}
-    </div>
-  </div>
-
-  <!-- ── Product Tabs ──────────────────────────────────────────────────────── -->
-  <div class="row mt-5">
-    <div class="col-12">
-      <ul class="nav nav-tabs rv-product-tabs" id="productTabs" role="tablist">
-        <li class="nav-item" role="presentation">
-          <button class="nav-link active" id="tab-description" data-bs-toggle="tab"
-                  data-bs-target="#pane-description" type="button" role="tab"
-                  aria-controls="pane-description" aria-selected="true">
-            <i class="bi bi-card-text me-1"></i>Description
-          </button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="tab-info" data-bs-toggle="tab"
-                  data-bs-target="#pane-info" type="button" role="tab"
-                  aria-controls="pane-info" aria-selected="false">
-            <i class="bi bi-info-circle me-1"></i>Additional Information
-          </button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="tab-reviews" data-bs-toggle="tab"
-                  data-bs-target="#pane-reviews" type="button" role="tab"
-                  aria-controls="pane-reviews" aria-selected="false">
-            <i class="bi bi-star me-1"></i>Reviews
-            {% if reviews %}<span class="badge bg-secondary ms-1">{{ reviews|length }}</span>{% endif %}
-          </button>
-        </li>
-      </ul>
-
-      <div class="tab-content rv-product-tabs__content" id="productTabsContent">
+      <div class="tab-content" id="adTabContent">
 
         <!-- Description -->
-        <div class="tab-pane fade show active" id="pane-description" role="tabpanel" aria-labelledby="tab-description">
-          <div class="rv-tab-body">
+        <div class="tab-pane fade show active" id="adPane-desc" role="tabpanel">
+          <div class="description-content">
+            <h3>{{ listing.title }}</h3>
             {{ listing.description|linebreaks }}
           </div>
         </div>
 
         <!-- Additional Information -->
-        <div class="tab-pane fade" id="pane-info" role="tabpanel" aria-labelledby="tab-info">
-          <div class="rv-tab-body">
-            <table class="table rv-info-table">
+        <div class="tab-pane fade" id="adPane-info" role="tabpanel">
+          <div class="ad-info-table">
+            <table class="table">
               <tbody>
-                <tr>
-                  <th>Category</th>
-                  <td>{{ listing.category.name }}</td>
-                </tr>
-                {% if listing.sku %}
-                <tr>
-                  <th>SKU</th>
-                  <td>{{ listing.sku }}</td>
-                </tr>
-                {% endif %}
-                {% if listing.brand %}
-                <tr>
-                  <th>Brand</th>
-                  <td>{{ listing.brand }}</td>
-                </tr>
-                {% endif %}
-                {% if listing.weight %}
-                <tr>
-                  <th>Weight</th>
-                  <td>{{ listing.weight }}</td>
-                </tr>
-                {% endif %}
-                {% if listing.dimensions %}
-                <tr>
-                  <th>Dimensions</th>
-                  <td>{{ listing.dimensions }}</td>
-                </tr>
-                {% endif %}
+                <tr><th>Category</th><td>{{ listing.category.name }}</td></tr>
+                <tr><th>Lot Number</th><td>{{ listing.pk|stringformat:"08d" }}</td></tr>
+                <tr><th>Starting Price</th><td>${{ listing.min_public_price|floatformat:2|intcomma }}</td></tr>
+                <tr><th>Max Price</th><td>${{ listing.max_public_price|floatformat:2|intcomma }}</td></tr>
+                <tr><th>Start Time</th><td>{{ listing.start_time|date:"F j, Y g:i A" }}</td></tr>
+                <tr><th>End Time</th><td>{{ listing.end_time|date:"F j, Y g:i A" }}</td></tr>
+                {% if listing.sku %}<tr><th>SKU</th><td>{{ listing.sku }}</td></tr>{% endif %}
+                {% if listing.brand %}<tr><th>Brand</th><td>{{ listing.brand }}</td></tr>{% endif %}
+                {% if listing.weight %}<tr><th>Weight</th><td>{{ listing.weight }}</td></tr>{% endif %}
+                {% if listing.dimensions %}<tr><th>Dimensions</th><td>{{ listing.dimensions }}</td></tr>{% endif %}
                 {% if listing.tags_list %}
-                <tr>
-                  <th>Tags</th>
-                  <td>
-                    {% for tag in listing.tags_list %}
-                      <span class="badge bg-secondary rv-tag">{{ tag }}</span>
-                    {% endfor %}
-                  </td>
-                </tr>
+                <tr><th>Tags</th><td>{% for tag in listing.tags_list %}<span class="badge me-1" style="background:#e6f8ff;color:#01AA85;border:1px solid #b3e8da;">{{ tag }}</span>{% endfor %}</td></tr>
                 {% endif %}
               </tbody>
             </table>
           </div>
         </div>
 
+        <!-- Bid History -->
+        <div class="tab-pane fade" id="adPane-bids" role="tabpanel">
+          <div class="ad-bid-history">
+            {% if bids %}
+            <table class="table">
+              <thead>
+                <tr><th>#</th><th>Bidder</th><th>Amount</th><th>Time</th></tr>
+              </thead>
+              <tbody>
+                {% for bid in bids %}
+                <tr {% if forloop.first %}class="winner"{% endif %}>
+                  <td>
+                    {% if forloop.first %}<i class="bi bi-trophy-fill" style="color:#D8762D;"></i>
+                    {% else %}{{ forloop.counter }}{% endif %}
+                  </td>
+                  <td>{{ bid.user.full_name }}</td>
+                  <td><strong style="color:#01AA85;">${{ bid.amount|floatformat:2|intcomma }}</strong></td>
+                  <td>{{ bid.timestamp|date:"M j, Y H:i" }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            {% else %}
+            <p style="color:#9CA3AF;font-family:'DM Sans',sans-serif;padding:1.5rem 0;">No bids placed yet. Be the first to bid!</p>
+            {% endif %}
+          </div>
+        </div>
+
         <!-- Reviews -->
-        <div class="tab-pane fade" id="pane-reviews" role="tabpanel" aria-labelledby="tab-reviews">
-          <div class="rv-tab-body" id="reviews">
+        <div class="tab-pane fade" id="adPane-reviews" role="tabpanel">
+          <div class="reviews-area">
 
             {% if reviews %}
-            <div class="rv-reviews-list mb-4">
-              {% for review in reviews %}
-              <div class="rv-review-item">
-                <div class="rv-review-item__header">
-                  <span class="rv-review-item__author">
-                    <i class="bi bi-person-circle me-1"></i>{{ review.user.full_name }}
-                  </span>
-                  <span class="rv-review-item__stars">
-                    {% for i in "12345" %}
-                      {% if forloop.counter <= review.rating %}
-                        <i class="bi bi-star-fill text-warning"></i>
-                      {% else %}
-                        <i class="bi bi-star text-muted"></i>
-                      {% endif %}
-                    {% endfor %}
-                  </span>
-                  <span class="rv-review-item__date text-muted ms-2">
-                    {{ review.created_at|date:"M j, Y" }}
-                  </span>
-                </div>
-                {% if review.comment %}
-                <p class="rv-review-item__comment mb-0">{{ review.comment }}</p>
-                {% endif %}
-              </div>
-              {% endfor %}
+            <div class="number-of-review">
+              <h4>Review ({{ reviews|length }}):</h4>
             </div>
-            {% else %}
-            <p class="text-muted">No reviews yet. Be the first to leave one!</p>
-            {% endif %}
-
-            <!-- Review Form -->
-            {% if user.is_authenticated %}
-              {% if user_reviewed %}
-              <div class="rv-bid-panel__notice rv-bid-panel__notice--info mt-3">
-                <i class="bi bi-check-circle-fill me-2"></i>You have already reviewed this listing.
-              </div>
-              {% else %}
-              <div class="rv-review-form-wrap mt-3">
-                <h5 class="fw-semibold mb-3">Leave a Review</h5>
-                <form method="post" action="{% url 'listings:review' listing.pk %}">
-                  {% csrf_token %}
-                  <div class="rv-form__group mb-3">
-                    <label class="rv-label">Your Rating *</label>
-                    <div class="rv-star-rating">
-                      {% for value, label in review_form.rating.field.choices %}
-                      <label class="rv-star-rating__label" title="{{ value }} star{{ value|pluralize }}">
-                        <input type="radio" name="rating" value="{{ value }}"
-                               class="rv-star-rating__input"
-                               {% if review_form.rating.value == value %}checked{% endif %} required>
-                        <i class="bi bi-star-fill"></i>
-                      </label>
-                      {% endfor %}
+            <div class="review-list-area">
+              <ul class="comment">
+                {% for review in reviews %}
+                <li>
+                  <div class="single-comment-area">
+                    <div class="author-img">{{ review.user.full_name|first|upper }}</div>
+                    <div class="comment-content">
+                      <div class="author-and-review">
+                        <div class="author-name-deg">
+                          <h6>{{ review.user.full_name }}</h6>
+                          <span>{{ review.created_at|date:"j F, Y" }}</span>
+                        </div>
+                        <ul class="review">
+                          {% for i in "12345" %}
+                          <li>
+                            {% if forloop.counter <= review.rating %}
+                              <i class="bi bi-star-fill"></i>
+                            {% else %}
+                              <i class="bi bi-star"></i>
+                            {% endif %}
+                          </li>
+                          {% endfor %}
+                        </ul>
+                      </div>
+                      {% if review.comment %}<p>{{ review.comment }}</p>{% endif %}
                     </div>
                   </div>
-                  <div class="rv-form__group mb-3">
-                    <label class="rv-label" for="id_comment">Comment (optional)</label>
-                    <textarea name="comment" id="id_comment" class="form-control rv-input" rows="3"
-                              placeholder="Share your experience with this item…">{{ review_form.comment.value|default:'' }}</textarea>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+            {% else %}
+            <p style="color:#9CA3AF;font-family:'DM Sans',sans-serif;">No reviews yet. Be the first to leave one!</p>
+            {% endif %}
+
+            <!-- Review form -->
+            <div class="review-form">
+              <div class="number-of-review">
+                <h4>Write A Review</h4>
+              </div>
+              {% if user.is_authenticated %}
+                {% if user_reviewed %}
+                <div class="ad-notice ad-notice--info">
+                  <i class="bi bi-check-circle-fill"></i>
+                  <span>You have already reviewed this listing.</span>
+                </div>
+                {% else %}
+                <form method="post" action="{% url 'listings:review' listing.pk %}">
+                  {% csrf_token %}
+                  <div class="row g-3">
+                    <div class="col-lg-12">
+                      <label class="form-inner" style="margin-bottom:.5rem;">
+                        <span style="font-family:'DM Sans',sans-serif;font-size:.875rem;font-weight:600;color:#0B0C0C;">Your Rating</span>
+                      </label>
+                      <div class="ad-star-rating">
+                        {% for value, label in review_form.rating.field.choices %}
+                        <label title="{{ value }} star{{ value|pluralize }}">
+                          <input type="radio" name="rating" value="{{ value }}"
+                                 {% if review_form.rating.value == value %}checked{% endif %} required>
+                          <i class="bi bi-star-fill"></i>
+                        </label>
+                        {% endfor %}
+                      </div>
+                    </div>
+                    <div class="col-lg-12 mb-20">
+                      <div class="form-inner">
+                        <label>Comment (optional)</label>
+                        <textarea name="comment" placeholder="Share your experience with this item…" rows="4">{{ review_form.comment.value|default:'' }}</textarea>
+                      </div>
+                    </div>
+                    <div class="col-lg-12">
+                      <button type="submit" class="ad-submit-btn">
+                        <i class="bi bi-send"></i>Submit Review
+                      </button>
+                    </div>
                   </div>
-                  <button type="submit" class="btn rv-btn-primary">
-                    <i class="bi bi-send me-2"></i>Submit Review
-                  </button>
                 </form>
+                {% endif %}
+              {% else %}
+              <div class="ad-notice ad-notice--cta">
+                <i class="bi bi-lock"></i>
+                <div>
+                  <p class="mb-2">Sign in to leave a review</p>
+                  <a href="{% url 'accounts:login' %}?next={{ request.path }}#adPane-reviews" class="ad-submit-btn" style="font-size:.875rem;padding:.6rem 1.5rem;">Log In</a>
+                </div>
               </div>
               {% endif %}
-            {% else %}
-            <div class="rv-bid-panel__notice rv-bid-panel__notice--cta mt-3">
-              <p class="mb-2"><i class="bi bi-lock me-2"></i>Sign in to leave a review</p>
-              <a href="{% url 'accounts:login' %}?next={{ request.path }}#reviews" class="btn rv-btn-primary btn-sm">Log In</a>
             </div>
-            {% endif %}
 
           </div>
         </div>
@@ -414,46 +451,193 @@
       </div>
     </div>
   </div>
+</div>
+  </div>
+</div>
 
-  <!-- ── Bid History ──────────────────────────────────────────────────────── -->
-  {% if bids %}
-  <div class="row mt-5">
-    <div class="col-12">
-      <h3 class="rv-section-title">
-        <i class="bi bi-arrow-up-circle me-2"></i>Bid History
-        <span class="rv-section-title__count">{{ listing.bids.count }}</span>
-      </h3>
-      <div class="rv-bid-history">
-        <table class="table rv-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Bidder</th>
-              <th>Amount</th>
-              <th>Time</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for bid in bids %}
-            <tr {% if forloop.first %}class="rv-table__row--winner"{% endif %}>
-              <td>
-                {% if forloop.first %}
-                  <i class="bi bi-trophy-fill text-warning"></i>
-                {% else %}
-                  {{ forloop.counter }}
-                {% endif %}
-              </td>
-              <td>{{ bid.user.full_name }}</td>
-              <td><strong>${{ bid.amount|floatformat:2|intcomma }}</strong></td>
-              <td class="text-muted">{{ bid.timestamp|date:"M j, Y H:i" }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+
+<!-- ── Related Auctions ──────────────────────────────────── -->
+{% if related %}
+<div class="related-aution-section">
+  <div class="container">
+
+    <div class="row mb-60 align-items-center justify-content-between flex-wrap g-3">
+      <div class="col-auto">
+        <div class="section-title">
+          <h2>Related <span>Auction</span></h2>
+        </div>
+      </div>
+      <div class="col-auto">
+        <div class="slider-btn-grp">
+          <div class="slider-btn" id="relPrev"><i class="bi bi-arrow-left"></i></div>
+          <div class="slider-btn" id="relNext"><i class="bi bi-arrow-right"></i></div>
+        </div>
       </div>
     </div>
-  </div>
-  {% endif %}
 
+    <div class="related-slider-area">
+      <div class="related-track" id="relTrack">
+        {% for item in related %}
+        <div class="related-slide">
+          <div class="auction-card">
+            <div class="auction-card-img-wrap">
+              <a href="{{ item.get_absolute_url }}" class="card-img">
+                {% with primary=item.primary_image %}
+                  {% if primary %}
+                    <img src="{{ primary.image.url }}" alt="{{ item.title }}" loading="lazy">
+                  {% else %}
+                    <div class="card-img-placeholder"><i class="bi bi-hammer"></i></div>
+                  {% endif %}
+                {% endwith %}
+              </a>
+              <div class="batch">
+                <span class="live"><span class="dot"></span>Live</span>
+              </div>
+              <ul class="view-and-favorite-area">
+                <li><a href="{{ item.get_absolute_url }}" title="View"><i class="bi bi-eye"></i></a></li>
+                <li><a href="#" title="Watchlist"><i class="bi bi-heart"></i></a></li>
+              </ul>
+              <div class="countdown-timer">
+                <ul data-end="{{ item.end_time|date:'c' }}">
+                  <li class="times" data-unit="days">00</li>
+                  <li class="colon">:</li>
+                  <li class="times" data-unit="hours">00</li>
+                  <li class="colon">:</li>
+                  <li class="times" data-unit="minutes">00</li>
+                  <li class="colon">:</li>
+                  <li class="times" data-unit="seconds">00</li>
+                </ul>
+              </div>
+            </div>
+            <div class="auction-card-content">
+              <h6><a href="{{ item.get_absolute_url }}">{{ item.title|truncatechars:55 }}</a></h6>
+              <div class="price-and-code-area">
+                <div class="price">
+                  <span>Current Bid at:</span>
+                  <strong>${{ item.current_price|floatformat:2|intcomma }}</strong>
+                </div>
+                <div class="code"><span>Lot # {{ item.pk|stringformat:"08d" }}</span></div>
+              </div>
+              <div class="author-and-btn-area">
+                <a href="{{ item.get_absolute_url }}" class="author-area">
+                  <div class="author-img">{{ item.seller.full_name|first|upper }}</div>
+                  <div class="author-content">
+                    <h6>{{ item.seller.full_name|truncatechars:14 }}</h6>
+                  </div>
+                </a>
+                <a href="{{ item.get_absolute_url }}" class="bid-btn">Bid Now</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
 </div>
+{% endif %}
+
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+(function () {
+  'use strict';
+
+  /* ── Thumbnail tab sync: add active class to thumb buttons ── */
+  var thumbBtns = document.querySelectorAll('.ad-thumb-btn');
+  thumbBtns.forEach(function (btn) {
+    btn.addEventListener('shown.bs.tab', function () {
+      thumbBtns.forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+    });
+  });
+
+  /* ── Detail countdown (label-based times) ────────────────── */
+  function pad(n) { return n < 10 ? '0' + n : String(n); }
+
+  function tickDetail(ul) {
+    var end  = new Date(ul.dataset.end);
+    var diff = end - Date.now();
+    var items = ul.querySelectorAll('.times');
+    if (!items.length) return;
+
+    if (diff <= 0) {
+      items.forEach(function (t) { t.querySelector('.num').textContent = '00'; });
+      return;
+    }
+    var vals = [
+      Math.floor(diff / 86400000),
+      Math.floor((diff % 86400000) / 3600000),
+      Math.floor((diff % 3600000) / 60000),
+      Math.floor((diff % 60000) / 1000)
+    ];
+    items.forEach(function (t, i) {
+      t.querySelector('.num').textContent = pad(vals[i]);
+    });
+  }
+
+  /* ── Card countdown (data-unit spans) ───────────────────── */
+  function tickCard(ul) {
+    var end  = new Date(ul.dataset.end);
+    var diff = end - Date.now();
+    var units = ['days','hours','minutes','seconds'];
+    var vals  = [
+      Math.floor(diff / 86400000),
+      Math.floor((diff % 86400000) / 3600000),
+      Math.floor((diff % 3600000) / 60000),
+      Math.floor((diff % 60000) / 1000)
+    ];
+    if (diff <= 0) { vals = [0,0,0,0]; }
+    units.forEach(function (u, i) {
+      var el = ul.querySelector('[data-unit="' + u + '"]');
+      if (el) el.textContent = pad(vals[i]);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+
+    /* Detail timer */
+    var detailUl = document.querySelector('.coundown-area .countdown-timer ul[data-end]');
+    if (detailUl) {
+      tickDetail(detailUl);
+      setInterval(function () { tickDetail(detailUl); }, 1000);
+    }
+
+    /* Related card timers */
+    var cardUls = document.querySelectorAll('.related-track .countdown-timer ul[data-end]');
+    if (cardUls.length) {
+      cardUls.forEach(tickCard);
+      setInterval(function () { cardUls.forEach(tickCard); }, 1000);
+    }
+
+    /* Related slider */
+    var track   = document.getElementById('relTrack');
+    var prevBtn = document.getElementById('relPrev');
+    var nextBtn = document.getElementById('relNext');
+    if (!track || !prevBtn) return;
+
+    var slides = track.querySelectorAll('.related-slide');
+    var idx = 0;
+
+    function getVisible() {
+      var w = track.parentElement.offsetWidth;
+      var slideW = slides[0].offsetWidth + 24;
+      return Math.max(1, Math.round((w + 24) / slideW));
+    }
+    function maxIdx() { return Math.max(0, slides.length - getVisible()); }
+    function go(n) {
+      idx = Math.max(0, Math.min(n, maxIdx()));
+      track.style.transform = 'translateX(-' + (idx * (slides[0].offsetWidth + 24)) + 'px)';
+    }
+
+    prevBtn.addEventListener('click', function () { go(idx - 1); });
+    nextBtn.addEventListener('click', function () { go(idx + 1); });
+    window.addEventListener('resize', function () { go(Math.min(idx, maxIdx())); });
+  });
+
+}());
+</script>
 {% endblock %}

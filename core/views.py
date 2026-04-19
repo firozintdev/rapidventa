@@ -18,3 +18,15 @@ class AdminDashboardView(StaffRequiredMixin, TemplateView):
         ctx = super().get_context_data(**kwargs)
         ctx.update(get_platform_stats())
         return ctx
+
+
+class HowToBidView(TemplateView):
+    template_name = "core/how_to_bid.html"
+
+
+class HowToSellView(TemplateView):
+    template_name = "core/how_to_sell.html"
+
+
+class ContactView(TemplateView):
+    template_name = "core/contact.html"
