@@ -42,6 +42,11 @@ class ListingForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["category"].queryset = (
+            Category.objects.filter(parent__isnull=False)
+            .select_related("parent")
+            .order_by("parent__order", "parent__name", "order", "name")
+        )
         self.fields["start_time"].input_formats = ["%Y-%m-%dT%H:%M"]
         self.fields["end_time"].input_formats = ["%Y-%m-%dT%H:%M"]
         self.fields["secret_reserve_price"].help_text = _(
@@ -80,7 +85,9 @@ class ListingFilterForm(forms.Form):
     """Public search / filter form for the listing list page."""
 
     category = forms.ModelChoiceField(
-        queryset=Category.objects.all(),
+        queryset=Category.objects.filter(parent__isnull=False)
+            .select_related("parent")
+            .order_by("parent__order", "parent__name", "order", "name"),
         required=False,
         empty_label=_("All Categories"),
     )

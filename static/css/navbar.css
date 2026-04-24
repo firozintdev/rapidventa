@@ -1,0 +1,515 @@
+/* ============================================================
+   RapidVenta – Navigation Styles
+   Based on Probid style-1 header/nav CSS
+   ============================================================ */
+
+/* ── CSS Variables ─────────────────────────────────────────── */
+:root {
+  --nav-primary:      #01AA85;
+  --nav-dark:         #0B0C0C;
+  --nav-gray:         #5E5E5E;
+  --nav-border:       #EEEEEE;
+  --nav-border2:      rgba(34,34,34,.12);
+  --nav-shadow:       0px 30px 80px rgba(8,0,42,.08);
+  --nav-font:         'DM Sans', sans-serif;
+  --nav-height:       72px;
+}
+
+/* ── Topbar ────────────────────────────────────────────────── */
+.rv-topbar {
+  background: #fff;
+  border-bottom: 1px solid var(--nav-border);
+  padding: 12px 0;
+  font-family: var(--nav-font);
+  position: relative;
+  width: 100%;
+  z-index: 999;
+}
+
+@media (max-width: 991px) {
+  .rv-topbar { display: none; }
+}
+
+.rv-topbar__wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Left contact list */
+.rv-topbar__contact {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 60px;
+}
+
+.rv-topbar__contact li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--nav-dark);
+}
+
+.rv-topbar__contact li i {
+  color: var(--nav-dark);
+  font-size: 1rem;
+  transition: .5s;
+}
+
+.rv-topbar__contact a {
+  color: var(--nav-dark);
+  font-family: var(--nav-font);
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: .5s;
+}
+
+.rv-topbar__contact a:hover,
+.rv-topbar__contact a:hover i { color: var(--nav-primary); }
+
+/* Divider between contacts */
+.rv-topbar__divider {
+  width: 1px;
+  height: 20px;
+  background: var(--nav-border2);
+  flex-shrink: 0;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: -30px;
+}
+
+.rv-topbar__contact li:first-child .rv-topbar__divider { display: none; }
+
+/* Right side */
+.rv-topbar__right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* HOW TO BID / SELL YOUR ITEM – outlined pill */
+.rv-topbar__btn {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--nav-border2);
+  border-radius: 50px;
+  padding: 5px 20px;
+  font-family: var(--nav-font);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--nav-dark);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+  white-space: nowrap;
+  line-height: 1;
+  transition: .5s;
+}
+
+.rv-topbar__btn:hover {
+  background: var(--nav-primary);
+  border-color: var(--nav-primary);
+  color: #fff;
+}
+
+/* Language selector */
+.rv-topbar__lang {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--nav-font);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--nav-dark);
+  cursor: pointer;
+  transition: .5s;
+}
+
+.rv-topbar__lang i { transition: .5s; }
+.rv-topbar__lang:hover,
+.rv-topbar__lang:hover i { color: var(--nav-primary); }
+
+/* ── Main Navbar ───────────────────────────────────────────── */
+.rv-navbar {
+  background: #fff;
+  border-bottom: 1px solid var(--nav-border);
+  box-shadow: 0 2px 16px rgba(0,0,0,.05);
+  z-index: 1000;
+  padding: 0;
+  min-height: var(--nav-height);
+  transition: all .8s ease-out 0s;
+}
+
+.rv-navbar.sticky {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  box-shadow: 0px 30px 80px rgba(8,0,42,.08);
+  animation: smooth-header .5s ease;
+}
+
+@keyframes smooth-header {
+  0%   { transform: translateY(-30px); }
+  100% { transform: translateY(0); }
+}
+
+/* Logo */
+.rv-brand {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  flex: 0 0 200px;
+}
+
+.rv-brand__logo         { height: 48px; width: auto; display: block; }
+.rv-brand__logo--footer { height: 44px; width: auto; display: block; }
+.rv-brand__logo--auth   { height: 110px; width: auto; }
+.rv-brand--footer       { opacity: .9; }
+
+/* ── Nav items spacing ─────────────────────────────────────── */
+.rv-navbar .navbar-nav {
+  gap: 0;
+}
+
+.rv-navbar .navbar-nav .nav-item {
+  padding: 0 22px;
+}
+
+.rv-navbar .navbar-nav .nav-item:first-child { padding-left: 0; }
+
+/* ── Nav links (top-level) ─────────────────────────────────── */
+.rv-navbar .nav-link {
+  font-family: var(--nav-font);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--nav-dark);
+  letter-spacing: .3px;
+  padding: 24px 0;
+  position: relative;
+  transition: all .5s ease-out 0s;
+  background: transparent;
+  white-space: nowrap;
+}
+
+.rv-navbar .nav-link:hover,
+.rv-navbar .nav-link.active {
+  color: var(--nav-primary);
+  background: transparent;
+}
+
+/* Active underline – Probid style */
+.rv-navbar .nav-link.active::before {
+  content: "";
+  position: absolute;
+  bottom: 22px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--nav-primary);
+}
+
+@media (max-width: 991px) {
+  .rv-navbar .nav-link.active::before { display: none; }
+}
+
+/* Dropdown caret */
+.rv-nav-caret {
+  font-size: .65rem;
+  vertical-align: middle;
+  margin-left: 2px;
+}
+
+/* Items with children: chevron-down indicator */
+.rv-navbar .nav-item.dropdown > .nav-link::after {
+  content: "\f282";
+  font-family: "bootstrap-icons";
+  font-weight: 600;
+  font-size: 12px;
+  position: absolute;
+  top: 50%;
+  right: -14px;
+  transform: translateY(-50%);
+  color: var(--nav-dark);
+  transition: all .55s ease-in-out;
+  border: none;
+  vertical-align: unset;
+  margin: 0;
+}
+
+.rv-navbar .nav-item.dropdown:hover > .nav-link::after,
+.rv-navbar .nav-item.dropdown > .nav-link.active::after {
+  content: "\f286";
+  color: var(--nav-primary);
+}
+
+@media (max-width: 991px) {
+  .rv-navbar .nav-item.dropdown > .nav-link::after { display: none; }
+}
+
+/* ── Dropdown menus ────────────────────────────────────────── */
+.rv-dropdown {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background: #fff;
+  border: none;
+  border-radius: 0;
+  box-shadow: var(--nav-shadow);
+  min-width: 300px;
+}
+
+.rv-dropdown .dropdown-item {
+  display: block;
+  padding: 15px 14px;
+  color: var(--nav-dark);
+  font-family: var(--nav-font);
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: capitalize;
+  line-height: 1.3;
+  border-bottom: 1px solid var(--nav-border);
+  border-radius: 0;
+  position: relative;
+  transition: all .4s ease-out 0s;
+}
+
+/* Probid gradient underline on hover */
+.rv-dropdown .dropdown-item::before {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, #fff, var(--nav-primary), #fff);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: .4s ease-in;
+  z-index: 1;
+}
+
+.rv-dropdown .dropdown-item:last-child { border-bottom: none; }
+.rv-dropdown .dropdown-item:last-child::before { display: none; }
+
+.rv-dropdown .dropdown-item:hover,
+.rv-dropdown .dropdown-item:focus {
+  color: var(--nav-primary);
+  background: transparent;
+}
+
+.rv-dropdown .dropdown-item:hover::before { transform: scaleX(1); }
+
+/* Divider */
+.rv-dropdown hr.dropdown-divider { border-color: var(--nav-border); margin: 0; }
+
+/* Dropdown header (role label) */
+.rv-dropdown .dropdown-header {
+  padding: 10px 15px 4px;
+}
+
+/* Dropdown-item-text (pending validation notice) */
+.rv-dropdown .dropdown-item-text {
+  padding: 8px 15px;
+  font-size: .8rem;
+}
+
+/* Hover open on desktop – level 1 */
+@media (min-width: 992px) {
+  .rv-navbar .nav-item.dropdown:hover > .dropdown-menu {
+    display: block;
+    margin-top: 0;
+    animation: rv-fade-down .45s linear;
+  }
+}
+
+@keyframes rv-fade-down {
+  0%   { opacity: 0; transform: scaleY(0); transform-origin: top; visibility: hidden; }
+  100% { opacity: 1; transform: scaleY(1); transform-origin: top; visibility: visible; }
+}
+
+/* ── Category flyout dropdown ──────────────────────────────── */
+.rv-dropdown--categories {
+  min-width: 250px;
+  width: 250px;
+  padding: 0;
+}
+
+.rv-cat-all {
+  font-weight: 700 !important;
+  color: var(--nav-primary) !important;
+}
+
+.rv-cat-all::before { display: none; }
+
+.rv-cat-group { position: relative; }
+
+.rv-cat-parent {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600 !important;
+  color: var(--nav-dark) !important;
+}
+
+.rv-cat-parent:hover { color: var(--nav-primary) !important; }
+
+.rv-cat-arrow {
+  font-size: .75rem;
+  color: var(--nav-dark);
+  transition: color .2s;
+}
+
+.rv-cat-group:hover .rv-cat-arrow { color: var(--nav-primary); }
+
+/* Level-2 flyout */
+.rv-cat-flyout {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 100%;
+  min-width: 250px;
+  background: #fff;
+  box-shadow: var(--nav-shadow);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  z-index: 1100;
+  animation: rv-fade-down .45s linear;
+}
+
+@media (min-width: 992px) {
+  .rv-cat-group:hover > .rv-cat-flyout { display: block; }
+}
+
+.rv-cat-child {
+  display: block;
+  padding: 15px 14px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: var(--nav-dark) !important;
+  border-bottom: 1px solid var(--nav-border);
+  position: relative;
+  transition: all .4s ease-out 0s;
+  border-radius: 0 !important;
+}
+
+.rv-cat-child::before {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, #fff, var(--nav-primary), #fff);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: .4s ease-in;
+  z-index: 1;
+}
+
+.rv-cat-child:last-child { border-bottom: none; }
+.rv-cat-child:last-child::before { display: none; }
+
+.rv-cat-child:hover {
+  color: var(--nav-primary) !important;
+  background: transparent !important;
+}
+
+.rv-cat-child:hover::before { transform: scaleX(1); }
+
+/* ── Search bar ────────────────────────────────────────────── */
+.rv-nav-search {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid var(--nav-border);
+  border-radius: 5px;
+  overflow: hidden;
+  height: 44px;
+  transition: border-color .2s;
+}
+
+.rv-nav-search:focus-within { border-color: var(--nav-primary); }
+
+.rv-nav-search__input {
+  border: none;
+  outline: none;
+  padding: 0 .9rem;
+  font-family: var(--nav-font);
+  font-size: .9rem;
+  color: var(--nav-dark);
+  width: 200px;
+  background: transparent;
+  height: 100%;
+}
+
+.rv-nav-search__input::placeholder { color: #9CA3AF; }
+
+.rv-nav-search__btn {
+  background: var(--nav-primary);
+  color: #fff;
+  border: none;
+  width: 44px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background .2s;
+  flex-shrink: 0;
+}
+
+.rv-nav-search__btn:hover { background: var(--nav-dark); }
+
+/* ── My Account button ─────────────────────────────────────── */
+.rv-my-account-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  background: var(--nav-dark);
+  color: #fff !important;
+  font-family: var(--nav-font);
+  font-size: .9rem;
+  font-weight: 600;
+  padding: .58rem 1.15rem;
+  border-radius: 5px;
+  text-decoration: none !important;
+  white-space: nowrap;
+  border: none;
+  cursor: pointer;
+  transition: background .3s;
+}
+
+.rv-my-account-btn:hover { background: var(--nav-primary); }
+
+/* remove Bootstrap caret */
+.rv-my-account-btn.dropdown-toggle::after { display: none; }
+
+/* Account dropdown aligns right */
+.rv-my-account-btn + .dropdown-menu { min-width: 200px; }
+
+/* ── Mobile toggler ────────────────────────────────────────── */
+.rv-toggler {
+  border: 1px solid var(--nav-border);
+  padding: 6px 10px;
+  border-radius: 4px;
+}
+
+/* ── Mobile nav right spacing ──────────────────────────────── */
+@media (max-width: 991.98px) {
+  .rv-nav-right   { margin-top: .75rem; padding-bottom: .75rem; }
+  .rv-nav-search__input { width: 150px; }
+  .rv-navbar .nav-link { padding: 10px 0; }
+}

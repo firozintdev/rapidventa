@@ -23,11 +23,33 @@ class ReviewInline(admin.TabularInline):
     can_delete = True
 
 
+class SubCategoryInline(admin.TabularInline):
+    model = Category
+    fk_name = "parent"
+    extra = 1
+    fields = ("name", "slug", "order", "description")
+    prepopulated_fields = {"slug": ("name",)}
+    verbose_name = "Subcategory"
+    verbose_name_plural = "Subcategories"
+
+
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("name", "slug")
+    list_display = ("name", "parent", "slug", "order", "listing_count")
+    list_filter = ("parent",)
+    list_select_related = ("parent",)
     prepopulated_fields = {"slug": ("name",)}
     search_fields = ("name",)
+    ordering = ("parent__order", "parent__name", "order", "name")
+    inlines = [SubCategoryInline]
+
+    fieldsets = (
+        (None, {"fields": ("name", "slug", "parent", "order", "description")}),
+    )
+
+    @admin.display(description=_("Listings"))
+    def listing_count(self, obj):
+        return obj.listings.count()
 
 
 @admin.register(Listing)

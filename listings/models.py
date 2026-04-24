@@ -13,18 +13,38 @@ from .managers import ListingManager
 
 
 class Category(models.Model):
-    name = models.CharField(_("name"), max_length=100, unique=True)
+    name = models.CharField(_("name"), max_length=100)
     slug = models.SlugField(unique=True)
     description = models.TextField(_("description"), blank=True)
+    parent = models.ForeignKey(
+        "self",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="children",
+        verbose_name=_("parent category"),
+    )
+    order = models.PositiveSmallIntegerField(_("order"), default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = _("category")
         verbose_name_plural = _("categories")
-        ordering = ["name"]
+        ordering = ["order", "name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["name", "parent"], name="unique_category_name_per_parent"
+            )
+        ]
 
     def __str__(self) -> str:
+        if self.parent_id:
+            return f"{self.parent.name} › {self.name}"
         return self.name
+
+    @property
+    def is_root(self) -> bool:
+        return self.parent_id is None
 
 
 class Listing(models.Model):

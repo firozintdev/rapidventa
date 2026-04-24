@@ -8,9 +8,14 @@ from .models import Category, Listing, Watchlist
 
 
 def get_active_listings(*, category_slug: str = None, order_by: str = "end_time") -> QuerySet:
+    from django.db.models import Q
     qs = Listing.objects.active().select_related("category", "seller")
     if category_slug:
-        qs = qs.filter(category__slug=category_slug)
+        # Match the category itself or any of its children
+        qs = qs.filter(
+            Q(category__slug=category_slug) |
+            Q(category__parent__slug=category_slug)
+        )
     return qs.order_by(order_by)
 
 
@@ -28,7 +33,12 @@ def get_listings_by_seller(*, seller) -> QuerySet:
 
 
 def get_all_categories() -> QuerySet:
-    return Category.objects.all()
+    """Return root categories with their children prefetched, ordered."""
+    return (
+        Category.objects.filter(parent__isnull=True)
+        .prefetch_related("children")
+        .order_by("order", "name")
+    )
 
 
 def get_pending_listings() -> QuerySet:

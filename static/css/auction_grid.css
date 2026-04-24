@@ -180,6 +180,17 @@
 
 .ag-check input[type="radio"]:checked ~ span:last-child { color: #0B0C0C; font-weight: 600; }
 
+/* Category tree */
+.ag-cat-parent { display: flex; flex-direction: column; gap: .4rem; }
+.ag-check--parent { font-weight: 600; color: #0B0C0C; }
+.ag-cat-children {
+  list-style: none !important;
+  padding-left: 1.4rem !important;
+  margin: 0 !important;
+  gap: .4rem !important;
+}
+.ag-check--child { font-size: .85rem; }
+
 /* Apply / Reset buttons */
 .ag-widget--actions {
   display: flex;

@@ -60,14 +60,28 @@
                       <span>All Categories</span>
                     </label>
                   </li>
-                  {% for cat in categories %}
-                  <li>
-                    <label class="ag-check">
-                      <input type="radio" name="category" value="{{ cat.pk }}"
-                        {% if filter_form.category.value == cat.pk|stringformat:"s" %}checked{% endif %}>
+                  {% for parent in categories %}
+                  <li class="ag-cat-parent">
+                    <label class="ag-check ag-check--parent">
+                      <input type="radio" name="category" value="{{ parent.pk }}"
+                        {% if filter_form.category.value == parent.pk|stringformat:"s" %}checked{% endif %}>
                       <span class="ag-check__mark"></span>
-                      <span>{{ cat.name }}</span>
+                      <span>{{ parent.name }}</span>
                     </label>
+                    {% if parent.children.all %}
+                    <ul class="ag-cat-children">
+                      {% for child in parent.children.all %}
+                      <li>
+                        <label class="ag-check ag-check--child">
+                          <input type="radio" name="category" value="{{ child.pk }}"
+                            {% if filter_form.category.value == child.pk|stringformat:"s" %}checked{% endif %}>
+                          <span class="ag-check__mark"></span>
+                          <span>{{ child.name }}</span>
+                        </label>
+                      </li>
+                      {% endfor %}
+                    </ul>
+                    {% endif %}
                   </li>
                   {% endfor %}
                 </ul>
