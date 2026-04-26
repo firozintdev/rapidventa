@@ -153,52 +153,50 @@
 
 
 <!-- ═══════════════════════════════════════════════════════════
-     3. AUCTION CATEGORY  (#e6f8ff) — auto-slide, no scrollbar
+     3. AUCTION CATEGORY — Probid horizontal slider
 ═══════════════════════════════════════════════════════════ -->
 {% if categories %}
 <div class="home1-category-section mb-110">
   <div class="category-wrapper">
     <div class="container">
 
-      <div class="row mb-60 justify-content-center">
-        <div class="col-auto">
-          <div class="section-title text-center">
-            <h2>Auction <span>Category</span></h2>
-            <p>Find the perfect item across all categories</p>
+      <!-- Header row: title left · nav arrows right -->
+      <div class="d-flex align-items-center justify-content-between mb-50">
+        <div class="section-title">
+          <h2>Auction <span>Category</span></h2>
+          <p>Find the perfect item across all categories</p>
+        </div>
+        <div class="cat-slider-nav">
+          <button id="catSliderPrev" class="cat-nav-btn" aria-label="Previous">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+          <button id="catSliderNext" class="cat-nav-btn" aria-label="Next">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Slider -->
+      <div class="cat-slider-outer">
+        <div class="cat-slider-track" id="catSliderTrack">
+          {% for cat in categories %}
+          <div class="swiper-slide cat-slide">
+            <a href="{% url 'listings:auction_grid' %}?category={{ cat.pk }}"
+               class="cat-slide-card">
+              <div class="cat-slide-card__thumb cat-slide-card__thumb--{{ forloop.counter }}">
+                <i class="bi {% cycle 'bi-palette2' 'bi-archive-fill' 'bi-coin' 'bi-trophy-fill' 'bi-gem' 'bi-laptop-fill' 'bi-house-fill' 'bi-book-fill' %}"></i>
+              </div>
+              <h5 class="cat-slide-card__name">{{ cat.name }}</h5>
+              {% with total=cat.direct_active|add:cat.child_active %}
+              <span class="cat-slide-card__count">{{ total }} Item{{ total|pluralize }}</span>
+              {% endwith %}
+            </a>
           </div>
+          {% endfor %}
         </div>
       </div>
 
     </div>
-
-    <!-- Full-width auto-slide track (outside container for edge-to-edge feel) -->
-    <div class="cat-auto-wrapper">
-      <div class="cat-track">
-        <!-- Set 1 -->
-        <a href="{% url 'listings:list' %}#latest-auction" class="category-card">
-          <div class="cat-icon"><i class="bi bi-grid-3x3-gap-fill"></i></div>
-          <span class="cat-name">All Items</span>
-        </a>
-        {% for cat in categories %}
-        <a href="{% url 'listings:list' %}?category={{ cat.pk }}#latest-auction" class="category-card">
-          <div class="cat-icon"><i class="bi bi-tag-fill"></i></div>
-          <span class="cat-name">{{ cat.name }}</span>
-        </a>
-        {% endfor %}
-        <!-- Set 2 — duplicate for seamless infinite loop -->
-        <a href="{% url 'listings:list' %}#latest-auction" class="category-card">
-          <div class="cat-icon"><i class="bi bi-grid-3x3-gap-fill"></i></div>
-          <span class="cat-name">All Items</span>
-        </a>
-        {% for cat in categories %}
-        <a href="{% url 'listings:list' %}?category={{ cat.pk }}#latest-auction" class="category-card">
-          <div class="cat-icon"><i class="bi bi-tag-fill"></i></div>
-          <span class="cat-name">{{ cat.name }}</span>
-        </a>
-        {% endfor %}
-      </div>
-    </div>
-
   </div>
 </div>
 {% endif %}
@@ -367,26 +365,35 @@
   <div class="container">
     <div class="about-top-area mb-40">
       <div class="row g-4 align-items-center">
+
+        <!-- Left: image -->
         <div class="col-xl-5 col-lg-5">
           <div class="about-top-img">
+            {% if about.image %}
+            <img src="{{ about.image.url }}" alt="{{ about.title_bold }} {{ about.title_italic }}"
+                 class="about-top-img__photo">
+            {% else %}
             <div class="about-top-img-placeholder">
               <i class="bi bi-person-workspace"></i>
             </div>
+            {% endif %}
           </div>
         </div>
+
+        <!-- Right: content -->
         <div class="col-xl-7 col-lg-7">
           <div class="about-content">
             <div class="section-title mb-20">
-              <h2>Get In <span>Know</span></h2>
-              <p>Welcome to RapidVenta, where digital innovation meets auction excellence. Discover exclusive items and bid your way to great deals.</p>
+              <h2>{{ about.title_bold }} <span>{{ about.title_italic }}</span></h2>
+              <p>{{ about.description }}</p>
             </div>
 
             <ul>
-              <li><i class="bi bi-check-circle-fill"></i>Ready to boost your bidding strategy</li>
-              <li><i class="bi bi-check-circle-fill"></i>Join our exclusive auction community</li>
-              <li><i class="bi bi-check-circle-fill"></i>Verified sellers, real products, fair prices</li>
-              <li><i class="bi bi-check-circle-fill"></i>Live countdowns — bid until the last second</li>
-              <li><i class="bi bi-check-circle-fill"></i>Secure payments and buyer protection</li>
+              {% if about.feature_1 %}<li><i class="bi bi-check-circle-fill"></i>{{ about.feature_1 }}</li>{% endif %}
+              {% if about.feature_2 %}<li><i class="bi bi-check-circle-fill"></i>{{ about.feature_2 }}</li>{% endif %}
+              {% if about.feature_3 %}<li><i class="bi bi-check-circle-fill"></i>{{ about.feature_3 }}</li>{% endif %}
+              {% if about.feature_4 %}<li><i class="bi bi-check-circle-fill"></i>{{ about.feature_4 }}</li>{% endif %}
+              {% if about.feature_5 %}<li><i class="bi bi-check-circle-fill"></i>{{ about.feature_5 }}</li>{% endif %}
             </ul>
 
             <div class="counter-area">
@@ -396,11 +403,11 @@
                   <div class="content">
                     <div class="content-top-area">
                       <div class="number">
-                        <h5 class="js-counter" data-target="{{ page_obj.paginator.count }}">0</h5>
+                        <h5 class="js-counter" data-target="{{ stat_auctions }}">0</h5>
                       </div>
-                      <span>Auctions</span>
+                      <span>{{ about.stat_auctions_label }}</span>
                     </div>
-                    <p>Live Right Now</p>
+                    <p>{{ about.stat_auctions_sub }}</p>
                   </div>
                 </li>
                 <li class="single-counter">
@@ -410,9 +417,9 @@
                       <div class="number">
                         <h5 class="js-counter" data-target="{{ categories|length }}">0</h5>
                       </div>
-                      <span>Categories</span>
+                      <span>{{ about.stat_categories_label }}</span>
                     </div>
-                    <p>To Browse</p>
+                    <p>{{ about.stat_categories_sub }}</p>
                   </div>
                 </li>
                 <li class="single-counter">
@@ -420,41 +427,50 @@
                   <div class="content">
                     <div class="content-top-area">
                       <div class="number">
-                        <h5 class="js-counter" data-target="100">0</h5><strong>+</strong>
+                        <h5 class="js-counter" data-target="{{ stat_sellers }}">0</h5>
                       </div>
-                      <span>Sellers</span>
+                      <span>{{ about.stat_sellers_label }}</span>
                     </div>
-                    <p>Verified Sellers</p>
+                    <p>{{ about.stat_sellers_sub }}</p>
                   </div>
                 </li>
               </ul>
             </div>
 
             <a class="primary-btn" href="{% url 'listings:list' %}#latest-auction">
-              Start Bidding Now <i class="bi bi-arrow-right"></i>
+              {{ about.cta_text }} <i class="bi bi-arrow-right"></i>
             </a>
           </div>
         </div>
+
       </div>
     </div>
 
+    {% if about.testimonial_text %}
     <div class="about-bottom-area">
       <div class="row align-items-center g-4">
         <div class="col-xl-5 order-xl-2">
           <div class="about-author-content">
-            <p>"RapidVenta transformed how I buy and sell collectibles. The platform is transparent, fast, and the support team is always available."</p>
-            <h4>— A Happy Buyer</h4>
+            <p>"{{ about.testimonial_text }}"</p>
+            {% if about.testimonial_author %}<h4>— {{ about.testimonial_author }}</h4>{% endif %}
           </div>
         </div>
         <div class="col-xl-7 order-xl-1">
           <div class="about-bottom-img">
+            {% if about.bottom_image %}
+            <img src="{{ about.bottom_image.url }}" alt="About RapidVenta"
+                 class="about-top-img__photo">
+            {% else %}
             <div class="about-bottom-img-placeholder">
               <i class="bi bi-graph-up-arrow"></i>
             </div>
+            {% endif %}
           </div>
         </div>
       </div>
     </div>
+    {% endif %}
+
   </div>
 </div>
 
@@ -467,141 +483,83 @@
     <div class="row mb-60">
       <div class="col-lg-12">
         <div class="section-title text-center">
-          <h2>How It's <span>Work</span></h2>
-          <p>Start bidding in 4 simple steps and win exclusive auction items</p>
+          <h2>{{ how_it_works.title_bold }} <span>{{ how_it_works.title_italic }}</span></h2>
+          <p>{{ how_it_works.subtitle }}</p>
         </div>
       </div>
     </div>
 
     <div class="row g-4">
+      {% for step in how_it_works.steps.all %}
+      {% if step.is_active %}
       <div class="col-xl-3 col-lg-6 col-md-6">
         <div class="process-card">
           <div class="process-card-top-area">
-            <div class="icon"><i class="bi bi-person-plus-fill"></i></div>
-            <div class="number"><span>STEP 01</span></div>
+            <div class="icon"><i class="bi {{ step.icon }}"></i></div>
+            <div class="number"><span>STEP {{ step.order|stringformat:"02d" }}</span></div>
           </div>
           <div class="process-card-content">
-            <h3>Registration</h3>
+            <h3>{{ step.title }}</h3>
             <ul>
-              <li><strong>01.</strong> Create your free account</li>
-              <li><strong>02.</strong> Verify your identity</li>
-              <li><strong>03.</strong> Get validated by admin</li>
+              {% if step.item_1 %}<li><strong>01.</strong> {{ step.item_1 }}</li>{% endif %}
+              {% if step.item_2 %}<li><strong>02.</strong> {{ step.item_2 }}</li>{% endif %}
+              {% if step.item_3 %}<li><strong>03.</strong> {{ step.item_3 }}</li>{% endif %}
             </ul>
           </div>
         </div>
       </div>
-
-      <div class="col-xl-3 col-lg-6 col-md-6">
-        <div class="process-card">
-          <div class="process-card-top-area">
-            <div class="icon"><i class="bi bi-search"></i></div>
-            <div class="number"><span>STEP 02</span></div>
-          </div>
-          <div class="process-card-content">
-            <h3>Select Product</h3>
-            <ul>
-              <li><strong>01.</strong> Search your auction</li>
-              <li><strong>02.</strong> Find the right product</li>
-              <li><strong>03.</strong> Choose your final lot</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-xl-3 col-lg-6 col-md-6">
-        <div class="process-card">
-          <div class="process-card-top-area">
-            <div class="icon"><i class="bi bi-hammer"></i></div>
-            <div class="number"><span>STEP 03</span></div>
-          </div>
-          <div class="process-card-content">
-            <h3>Go to Bidding</h3>
-            <ul>
-              <li><strong>01.</strong> Choose the bid product</li>
-              <li><strong>02.</strong> Bid within your budget</li>
-              <li><strong>03.</strong> Watch the live countdown</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-xl-3 col-lg-6 col-md-6">
-        <div class="process-card">
-          <div class="process-card-top-area">
-            <div class="icon"><i class="bi bi-bag-check-fill"></i></div>
-            <div class="number"><span>STEP 04</span></div>
-          </div>
-          <div class="process-card-content">
-            <h3>Make Payment</h3>
-            <ul>
-              <li><strong>01.</strong> Confirm your winning bid</li>
-              <li><strong>02.</strong> Complete secure payment</li>
-              <li><strong>03.</strong> Receive your item</li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      {% endif %}
+      {% endfor %}
     </div>
   </div>
 </div>
 
 
-<!-- ═══════════════════════════════════════════════════════════
-     8. PARTNER LOGOS STRIP
-═══════════════════════════════════════════════════════════ -->
-<div class="logo-section mb-110">
-  <div class="container">
-    <div class="logo-wrapper">
-      <a href="#" class="partner-logo"><i class="bi bi-shield-fill-check"></i> SecurePay</a>
-      <a href="#" class="partner-logo"><i class="bi bi-credit-card-fill"></i> Visa</a>
-      <a href="#" class="partner-logo"><i class="bi bi-credit-card-2-front-fill"></i> Mastercard</a>
-      <a href="#" class="partner-logo"><i class="bi bi-bank2"></i> BancoPro</a>
-      <a href="#" class="partner-logo"><i class="bi bi-lock-fill"></i> TrustVault</a>
-      <a href="#" class="partner-logo"><i class="bi bi-globe2"></i> WorldAuct</a>
-    </div>
-  </div>
-</div>
 
 
 <!-- ═══════════════════════════════════════════════════════════
      9. FAQ SECTION
 ═══════════════════════════════════════════════════════════ -->
-<div class="home1-faq-section mb-110">
+<div class="home1-faq-section mb-110" id="faq-section">
   <div class="container">
     <div class="row mb-60">
       <div class="col-lg-12">
         <div class="section-title text-center">
-          <h2>Frequently Asked <span>Questions</span></h2>
-          <p>Everything you need to know about bidding on RapidVenta</p>
+          <h2>{{ faq.title_bold }} <span>{{ faq.title_italic }}</span></h2>
+          <p>{{ faq.subtitle }}</p>
         </div>
       </div>
     </div>
 
     <div class="row gy-5">
-      <!-- Left: contact/ask -->
+      <!-- Left: contact card + question form -->
       <div class="col-lg-4">
         <div class="faq-contact-wrap">
           <div class="contact-address-area">
-            <h4>Ask the help community — write to us now!</h4>
+            <h4>{{ faq.contact_heading }}</h4>
             <div class="contact-area">
               <div class="icon"><i class="bi bi-envelope-fill"></i></div>
               <div class="content">
-                <span>To Send Mail</span>
-                <h5><a href="https://wa.me/+584122392711">WhatsApp Support</a></h5>
+                <span>{{ faq.contact_label }}</span>
+                <h5><a href="mailto:{{ faq.contact_email }}">{{ faq.contact_email }}</a></h5>
               </div>
             </div>
           </div>
+
           <div class="contact-bottom-area">
-            <h6>Any Question?</h6>
-            <div class="form-inner">
-              <input type="email" placeholder="Enter Your Email">
-            </div>
-            <div class="form-inner">
-              <textarea placeholder="Write your question here…"></textarea>
-            </div>
-            <a class="primary-btn black-bg mt-2" href="https://wa.me/+584122392711" target="_blank" rel="noopener noreferrer">
-              Send Now <i class="bi bi-send"></i>
-            </a>
+            <h6>{{ faq.form_heading }}</h6>
+            <form method="post" action="{% url 'core:faq_question' %}">
+              {% csrf_token %}
+              <div class="form-inner">
+                <input type="email" name="email" placeholder="Enter Your Email" required>
+              </div>
+              <div class="form-inner">
+                <textarea name="message" placeholder="Write your question here…" required></textarea>
+              </div>
+              <button type="submit" class="primary-btn black-bg mt-2">
+                {{ faq.form_btn_text }} <i class="bi bi-send"></i>
+              </button>
+            </form>
           </div>
         </div>
       </div>
@@ -611,87 +569,25 @@
         <div class="faq-wrappper">
           <div class="faq-content">
             <div class="accordion" id="accordionFAQ">
-
+              {% for item in faq.items.all %}
+              {% if item.is_active %}
               <div class="accordion-item">
                 <h2 class="accordion-header">
-                  <button class="accordion-button" type="button"
-                    data-bs-toggle="collapse" data-bs-target="#faq1"
-                    aria-expanded="true">
-                    What is an auction?
+                  <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}"
+                    type="button" data-bs-toggle="collapse"
+                    data-bs-target="#faqItem{{ item.pk }}"
+                    aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}">
+                    {{ item.question }}
                   </button>
                 </h2>
-                <div id="faq1" class="accordion-collapse collapse show"
+                <div id="faqItem{{ item.pk }}"
+                     class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
                      data-bs-parent="#accordionFAQ">
-                  <div class="accordion-body">
-                    An auction is a public sale where items are sold to the highest bidder within a set time period. At RapidVenta, all auctions are live with a countdown timer — the highest bid when the clock hits zero wins.
-                  </div>
+                  <div class="accordion-body">{{ item.answer }}</div>
                 </div>
               </div>
-
-              <div class="accordion-item">
-                <h2 class="accordion-header">
-                  <button class="accordion-button collapsed" type="button"
-                    data-bs-toggle="collapse" data-bs-target="#faq2"
-                    aria-expanded="false">
-                    How do auctions work?
-                  </button>
-                </h2>
-                <div id="faq2" class="accordion-collapse collapse"
-                     data-bs-parent="#accordionFAQ">
-                  <div class="accordion-body">
-                    Browse active listings, place your bid above the current price, and watch the live countdown. If your bid is the highest when the auction ends, you win and proceed to complete the order.
-                  </div>
-                </div>
-              </div>
-
-              <div class="accordion-item">
-                <h2 class="accordion-header">
-                  <button class="accordion-button collapsed" type="button"
-                    data-bs-toggle="collapse" data-bs-target="#faq3"
-                    aria-expanded="false">
-                    What types of auctions are there?
-                  </button>
-                </h2>
-                <div id="faq3" class="accordion-collapse collapse"
-                     data-bs-parent="#accordionFAQ">
-                  <div class="accordion-body">
-                    RapidVenta hosts live timed auctions across many categories including electronics, collectibles, art, jewelry, real estate, and more. Each listing shows a category badge and countdown timer.
-                  </div>
-                </div>
-              </div>
-
-              <div class="accordion-item">
-                <h2 class="accordion-header">
-                  <button class="accordion-button collapsed" type="button"
-                    data-bs-toggle="collapse" data-bs-target="#faq4"
-                    aria-expanded="false">
-                    Who can participate in auctions?
-                  </button>
-                </h2>
-                <div id="faq4" class="accordion-collapse collapse"
-                     data-bs-parent="#accordionFAQ">
-                  <div class="accordion-body">
-                    Anyone can register for free. After registration, our admin team validates your account, giving you full access to bid on all live auctions. Sellers also go through a verification process.
-                  </div>
-                </div>
-              </div>
-
-              <div class="accordion-item">
-                <h2 class="accordion-header">
-                  <button class="accordion-button collapsed" type="button"
-                    data-bs-toggle="collapse" data-bs-target="#faq5"
-                    aria-expanded="false">
-                    What happens if I win an auction?
-                  </button>
-                </h2>
-                <div id="faq5" class="accordion-collapse collapse"
-                     data-bs-parent="#accordionFAQ">
-                  <div class="accordion-body">
-                    When you win, you'll receive a notification and can complete your order from your dashboard. Our team will coordinate payment and delivery. We offer a money-back guarantee if there's any issue.
-                  </div>
-                </div>
-              </div>
-
+              {% endif %}
+              {% endfor %}
             </div>
           </div>
         </div>
@@ -718,65 +614,35 @@
       </div>
 
       <div class="row g-4">
+        {% for review in featured_reviews %}
         <div class="col-lg-4 col-md-6">
           <div class="testimonial-content-wrap">
             <div class="quote"><i class="bi bi-quote"></i></div>
             <div class="stars">
-              <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-fill"></i>
+              {% for i in "12345" %}
+                {% if forloop.counter <= review.rating %}
+                  <i class="bi bi-star-fill"></i>
+                {% else %}
+                  <i class="bi bi-star"></i>
+                {% endif %}
+              {% endfor %}
             </div>
-            <span>Great Auction Platform!</span>
-            <p>RapidVenta made bidding incredibly easy and transparent. I won my first auction within a week of registering. The countdown timers keep everything exciting.</p>
+            <span>{{ review.listing.title|truncatewords:6 }}</span>
+            <p>{{ review.comment|truncatewords:30 }}</p>
             <div class="author-area">
-              <div class="author-img">P</div>
+              <div class="author-img">{{ review.user.get_full_name|default:review.user.username|first|upper }}</div>
               <div class="author-content">
-                <h6>Penelope García</h6>
-                <span>Verified Buyer</span>
+                <h6>{{ review.user.get_full_name|default:review.user.username }}</h6>
+                <span>Verified {{ review.user.get_role_display }}</span>
               </div>
             </div>
           </div>
         </div>
-
-        <div class="col-lg-4 col-md-6">
-          <div class="testimonial-content-wrap">
-            <div class="quote"><i class="bi bi-quote"></i></div>
-            <div class="stars">
-              <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-fill"></i>
-            </div>
-            <span>Excellent Seller Experience!</span>
-            <p>As a seller, the CSV bulk upload and analytics dashboard save me hours every week. My items get great visibility and fair bids every time.</p>
-            <div class="author-area">
-              <div class="author-img">M</div>
-              <div class="author-content">
-                <h6>Maverick Dylan</h6>
-                <span>Verified Seller</span>
-              </div>
-            </div>
-          </div>
+        {% empty %}
+        <div class="col-12 text-center text-muted py-4">
+          <p>No reviews yet. Be the first to share your experience!</p>
         </div>
-
-        <div class="col-lg-4 col-md-6">
-          <div class="testimonial-content-wrap">
-            <div class="quote"><i class="bi bi-quote"></i></div>
-            <div class="stars">
-              <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-half"></i>
-            </div>
-            <span>Secure &amp; Reliable!</span>
-            <p>The payment process is seamless and the support team responded via WhatsApp within minutes. I'd recommend RapidVenta to anyone looking for fair auction deals.</p>
-            <div class="author-area">
-              <div class="author-img">A</div>
-              <div class="author-content">
-                <h6>Aurelia McKenzie</h6>
-                <span>Verified Buyer</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        {% endfor %}
       </div>
 
     </div>
@@ -876,9 +742,9 @@
         <div class="footer-top-banner">
           <div class="banner-content">
             <span>How to use</span>
-            <h2><a href="{% url 'listings:list' %}">How to bid your item</a></h2>
+            <h2><a href="{% url 'core:how_to_bid' %}">How to bid your item</a></h2>
           </div>
-          <a href="{% url 'listings:list' %}" class="arrow">
+          <a href="{% url 'core:how_to_bid' %}" class="arrow">
             <i class="bi bi-arrow-right"></i>
           </a>
         </div>

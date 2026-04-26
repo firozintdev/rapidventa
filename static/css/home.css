@@ -27,6 +27,9 @@
 
 .section-title h2 span {
   color: #01AA85;
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-weight: 400;
 }
 
 .section-title p {
@@ -558,94 +561,137 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
-   4. CATEGORY SECTION  (#e6f8ff)
+   4. CATEGORY SECTION — Probid horizontal slider style
 ═══════════════════════════════════════════════════════════ */
-.home1-category-section {
-  padding: 0;
-}
+.home1-category-section { padding: 0; }
 
 .category-wrapper {
   background: #e6f8ff;
   padding: 90px 0;
 }
 
-.category-card {
-  text-align: center;
-  padding: 1.75rem 1rem;
-  background: #fff;
-  border-radius: 8px;
-  border: 1px solid #E6E6E6;
-  text-decoration: none;
+/* ── Slider nav arrows ───────────────────────────────────── */
+.cat-slider-nav {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: .75rem;
-  transition: border-color .2s, box-shadow .22s, transform .22s;
-  height: 100%;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
-.category-card:hover {
-  border-color: #01AA85;
-  box-shadow: 0 8px 28px rgba(1,170,133,.14);
-  transform: translateY(-4px);
-}
-
-.category-card .cat-icon {
-  width: 60px;
-  height: 60px;
+.cat-nav-btn {
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: rgba(1,170,133,.10);
-  color: #01AA85;
+  border: 1.5px solid #0B0C0C;
+  background: transparent;
+  color: #0B0C0C;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
-  transition: background .2s, color .2s;
+  font-size: .95rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: background .2s, color .2s, border-color .2s;
 }
 
-.category-card:hover .cat-icon {
+.cat-nav-btn:hover {
   background: #01AA85;
+  border-color: #01AA85;
   color: #fff;
 }
 
-.category-card .cat-name {
-  font-family: 'DM Sans', sans-serif;
-  font-size: .9375rem;
-  font-weight: 600;
-  color: #0B0C0C;
-  transition: color .2s;
-}
-
-.category-card:hover .cat-name { color: #01AA85; }
-
-/* ── Category auto-slide (infinite marquee, no scrollbar) ──── */
-.cat-auto-wrapper {
+/* ── Slider track ────────────────────────────────────────── */
+.cat-slider-outer {
   overflow: hidden;
-  position: relative;
-  /* fade edges */
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
-  mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+  padding-top: 45px;   /* lifts the clip boundary above the protruding thumb */
 }
 
-/* The sliding track — items duplicated in HTML for seamless loop */
-.cat-track {
+.cat-slider-track {
   display: flex;
-  gap: 20px;
-  width: max-content;
-  animation: cat-marquee 28s linear infinite;
+  gap: 24px;
+  transition: transform .4s ease;
 }
 
-/* Pause on hover */
-.cat-track:hover { animation-play-state: paused; }
-
-@keyframes cat-marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+/* Override generic swiper-slide width inside this track */
+.cat-slider-track .swiper-slide {
+  flex: 0 0 185px;
+  width: 185px;
 }
 
-.cat-track .category-card {
-  width: 160px;
-  flex-shrink: 0;
+/* ── Individual card ─────────────────────────────────────── */
+.cat-slide-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  text-decoration: none;
+  background: #fff;
+  border-radius: 10px;
+  padding: 65px 1.25rem 1.5rem; /* top gap for protruding thumb */
+  box-shadow: 0 2px 14px rgba(0,0,0,.07);
+  transition: transform .25s ease, box-shadow .25s ease;
+  width: 100%;
+  min-height: 180px;
+}
+
+.cat-slide-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 28px rgba(1,170,133,.15);
+}
+
+/* ── Thumbnail (icon as photo stand-in) ─────────────────── */
+.cat-slide-card__thumb {
+  position: absolute;
+  top: -36px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90px;
+  height: 90px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(0,0,0,.18);
+  transition: transform .25s ease;
+}
+
+.cat-slide-card:hover .cat-slide-card__thumb {
+  transform: translateX(-50%) translateY(-4px);
+}
+
+/* Gradient colours per slot ──────────────────────────────── */
+.cat-slide-card__thumb--1 { background: linear-gradient(135deg, #01AA85, #007c61); }
+.cat-slide-card__thumb--2 { background: linear-gradient(135deg, #1565C0, #0D47A1); }
+.cat-slide-card__thumb--3 { background: linear-gradient(135deg, #7B1FA2, #4A148C); }
+.cat-slide-card__thumb--4 { background: linear-gradient(135deg, #E64A19, #BF360C); }
+.cat-slide-card__thumb--5 { background: linear-gradient(135deg, #C62828, #7F0000); }
+.cat-slide-card__thumb--6 { background: linear-gradient(135deg, #0277BD, #01579B); }
+.cat-slide-card__thumb--7 { background: linear-gradient(135deg, #2E7D32, #1B5E20); }
+.cat-slide-card__thumb--8 { background: linear-gradient(135deg, #37474F, #1C313A); }
+
+/* ── Card text ───────────────────────────────────────────── */
+.cat-slide-card__name {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0B0C0C;
+  margin: 0 0 .25rem;
+  line-height: 1.25;
+  min-height: 2.5em; /* reserve exactly 2 lines so all cards align */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cat-slide-card__count {
+  font-family: 'DM Sans', sans-serif;
+  font-size: .82rem;
+  font-weight: 500;
+  color: #01AA85;
+  letter-spacing: .01em;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1381,7 +1427,7 @@
    13. FOOTER TOP BANNERS (dark overlay)
 ═══════════════════════════════════════════════════════════ */
 .home1-footer-top-area {
-  margin-bottom: 0;
+  margin-bottom: 80px;
 }
 
 .footer-top-banner {

@@ -12,11 +12,14 @@ from django.views import View
 from django.views.generic import DetailView, TemplateView
 
 from core.mixins import SellerRequiredMixin
+from core.models import AboutSection, FaqSection, HowItWorksSection
 from .forms import CSVUploadForm, ListingFilterForm, ListingForm, ReviewForm
 from .models import Listing, Watchlist
 from .selectors import (
     get_active_listings,
     get_all_categories,
+    get_featured_reviews,
+    get_home_stats,
     get_listing_detail,
     get_listings_by_seller,
     get_seller_analytics,
@@ -68,6 +71,11 @@ class ListingListView(View):
                 "page_obj": page_obj,
                 "filter_form": form,
                 "categories": get_all_categories(),
+                "about": AboutSection.get_solo(),
+                "how_it_works": HowItWorksSection.get_solo(),
+                "faq": FaqSection.get_solo(),
+                "featured_reviews": get_featured_reviews(),
+                **get_home_stats(),
             },
         )
 

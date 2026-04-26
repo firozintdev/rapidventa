@@ -4,7 +4,7 @@ Read-only query helpers for listings. No mutations here.
 """
 
 from django.db.models import Count, QuerySet, Sum
-from .models import Category, Listing, Watchlist
+from .models import Category, Listing, Review, Watchlist
 
 
 def get_active_listings(*, category_slug: str = None, order_by: str = "end_time") -> QuerySet:
@@ -33,12 +33,38 @@ def get_listings_by_seller(*, seller) -> QuerySet:
 
 
 def get_all_categories() -> QuerySet:
-    """Return root categories with their children prefetched, ordered."""
+    """Return root categories with prefetched children and active listing counts."""
+    from django.db.models import Q
     return (
         Category.objects.filter(parent__isnull=True)
         .prefetch_related("children")
+        .annotate(
+            direct_active=Count(
+                "listings",
+                filter=Q(listings__status=Listing.Status.ACTIVE),
+                distinct=True,
+            ),
+            child_active=Count(
+                "children__listings",
+                filter=Q(children__listings__status=Listing.Status.ACTIVE),
+                distinct=True,
+            ),
+        )
         .order_by("order", "name")
     )
+
+
+def get_home_stats() -> dict:
+    """Live counts for the homepage Get In Know section."""
+    from accounts.models import User
+
+    return {
+        "stat_auctions": Listing.objects.active().count(),
+        "stat_sellers": User.objects.filter(
+            role=User.Role.SELLER,
+            is_validated_by_admin=True,
+        ).count(),
+    }
 
 
 def get_pending_listings() -> QuerySet:
@@ -90,6 +116,15 @@ def get_seller_analytics(*, seller) -> dict:
         "top_listing": top_listing,
         "recent_bids": recent_bids,
     }
+
+
+def get_featured_reviews() -> QuerySet:
+    """Latest 3 reviews with rating ≥ 4, for the homepage testimonials section."""
+    return (
+        Review.objects.filter(rating__gte=4)
+        .select_related("user", "listing")
+        .order_by("-created_at")[:3]
+    )
 
 
 def get_watchlist(*, user) -> QuerySet:

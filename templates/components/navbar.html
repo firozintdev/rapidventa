@@ -8,25 +8,26 @@
       <!-- Left: contact info -->
       <ul class="rv-topbar__contact">
         <li>
+          <span class="rv-topbar__divider"></span>
           <i class="bi bi-envelope"></i>
-          <a href="mailto:info@rapidventa.com">info@rapidventa.com</a>
+          <a href="mailto:{{ topbar.email }}">{{ topbar.email }}</a>
         </li>
-        <li class="rv-topbar__divider"></li>
         <li>
+          <span class="rv-topbar__divider"></span>
           <i class="bi bi-headset"></i>
-          <a href="https://wa.me/+584122392711" target="_blank" rel="noopener noreferrer">
-            Customer support
+          <a href="{{ topbar.support_url }}" target="_blank" rel="noopener noreferrer">
+            {{ topbar.support_label }}
           </a>
         </li>
       </ul>
 
       <!-- Right: action buttons + language -->
       <div class="rv-topbar__right">
-        <a href="{% url 'core:how_to_bid' %}" class="rv-topbar__btn">HOW TO BID</a>
-        <a href="{% url 'core:how_to_sell' %}" class="rv-topbar__btn">SELL YOUR ITEM</a>
+        <a href="{% url 'core:how_to_bid' %}" class="rv-topbar__btn">{{ topbar.btn_how_to_bid }}</a>
+        <a href="{% url 'core:how_to_sell' %}" class="rv-topbar__btn">{{ topbar.btn_sell }}</a>
         <div class="rv-topbar__lang">
           <i class="bi bi-translate"></i>
-          <span>Language</span>
+          <span>{{ topbar.language_label }}</span>
         </div>
       </div>
 
@@ -40,7 +41,11 @@
 
     <!-- Logo -->
     <a class="navbar-brand rv-brand" href="{% url 'listings:list' %}">
-      <img src="{% static 'images/logo-nav.png' %}" alt="RapidVenta" class="rv-brand__logo" />
+      {% if topbar.logo %}
+      <img src="{{ topbar.logo.url }}" alt="{{ topbar.site_name }}" class="rv-brand__logo" />
+      {% else %}
+      <img src="{% static 'images/logo-nav.png' %}" alt="{{ topbar.site_name }}" class="rv-brand__logo" />
+      {% endif %}
     </a>
 
     <!-- Mobile toggle -->
@@ -59,13 +64,13 @@
         <li class="nav-item">
           <a class="nav-link {% if request.resolver_match.url_name == 'list' %}active{% endif %}"
              href="{% url 'listings:list' %}">
-            Home
+            {{ topbar.nav_home }}
           </a>
         </li>
 
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-display="static">
-            Auctions Category
+            {{ topbar.nav_auctions }}
           </a>
           <ul class="dropdown-menu rv-dropdown rv-dropdown--categories">
             <li>
@@ -103,7 +108,7 @@
         <li class="nav-item">
           <a class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}"
              href="{% url 'core:contact' %}">
-            Contact
+            {{ topbar.nav_contact }}
           </a>
         </li>
 
@@ -115,7 +120,7 @@
         <!-- Search form -->
         <form class="rv-nav-search" action="{% url 'listings:list' %}" method="get">
           <input type="text" name="q" class="rv-nav-search__input"
-                 placeholder="Search your product..."
+                 placeholder="{{ topbar.search_placeholder }}"
                  autocomplete="off">
           <button type="submit" class="rv-nav-search__btn">
             <i class="bi bi-search"></i>
